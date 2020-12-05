@@ -16,10 +16,23 @@ class menu(QMainWindow):
         self.top = 100
         self.width = 640
         self.height = 400
+        self.setWindowIcon(QIcon("icon.png"))
+        
+        
+       
         self.initUI()
     def initUI(self):
         
         self.setGeometry(self.left,self.top,self.width,self.height)
+        
+        
+        self.etiket = QLabel(self)
+        self.etiket.setPixmap(QPixmap("stajIsletme.png"))
+        
+        self.etiket.move(70,100)
+
+        self.etiket.setGeometry(0,0,640,400)
+        
         layout = QHBoxLayout()
         bar=self.menuBar()
         dosya=bar.addMenu("Dosya")
@@ -56,29 +69,21 @@ class menu(QMainWindow):
         
         
         
-      
+       
         
         
-        self.button=QPushButton('Tamam',self)
-        
-        self.button.move(20,300)
-        #♠self.button.clicked.connect(self.on_click)
-     
-        
-     
-        
-               
-               
+              
         self.show()
 
 def main():
     app = QApplication(sys.argv)
-   
-
-
     
-    ex = menu()
-    ex.show()
+
+   
+    pencere = menu()
+    
+    pencere.show()
+    
     sys.exit(app.exec_())
 if __name__ == '__main__':
     main()
