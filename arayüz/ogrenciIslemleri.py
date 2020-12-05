@@ -54,33 +54,38 @@ class menu(QMainWindow):
         
 
 
-        self.setLayout(layout)
-        self.setWindowTitle("Staj ve İşletme Takip-Öğrenci İşlemleri")
         
         
         
         self.sinif = QLabel(self)
+        
         self.sinif.setText("Sınıfı :")
-        self.sinif.setGeometry(45, 20, 100, 50) #(ayniDeger,+30,ayniDeger,ayniDeger)
+        self.sinif.setGeometry(45, 20, 100, 50) #(ayniDeger,+30,ayniDeger,ayniDeger)     
         self.sinifText=QLineEdit(self)
+        
         self.sinifText.move(120,35) #(ayniDeger,+30)
         self.sinifText.resize(200,20)
      
         self.ogrNo = QLabel(self)
+        
         self.ogrNo.setText("Öğrenci No :")
         self.ogrNo.setGeometry(45, 50, 100, 50)
         self.ogrNoText=QLineEdit(self)
+        
         self.ogrNoText.move(120,65)
         self.ogrNoText.resize(200,20)
         
         self.ad= QLabel(self)
+        
         self.ad.setText("Ad :")
         self.ad.setGeometry(45, 80, 100, 50)
         self.adText=QLineEdit(self)
+        
         self.adText.move(120,95)
         self.adText.resize(200,20)
         
         self.soyad = QLabel(self)
+        
         self.soyad.setText("Soyad :")
         self.soyad.setGeometry(45, 110, 100, 50)
         self.soyadText=QLineEdit(self)
@@ -137,11 +142,11 @@ class menu(QMainWindow):
         
       
         self.bolum= QLabel(self)
-        self.veliTelefon.setText("Bölümü :")
-        self.veliTelefon.setGeometry(45, 290, 100, 50)
-        self.veliTelefonText=QLineEdit(self)
-        self.veliTelefonText.move(120,305)
-        self.veliTelefonText.resize(200,20)
+        self.bolum.setText("Bölümü :")
+        self.bolum.setGeometry(45, 290, 100, 50)
+        self.bolumText=QLineEdit(self)
+        self.bolumText.move(120,305)
+        self.bolumText.resize(200,20)
       
         
         self.dal= QLabel(self)
@@ -163,8 +168,8 @@ class menu(QMainWindow):
              
         
         
-
         self.vbox = QVBoxLayout(self)
+        
         self.takvim = QCalendarWidget(self)
         self.takvim.setGridVisible(True)
         self.takvim.clicked[QDate].connect(self.showDate)
@@ -172,10 +177,52 @@ class menu(QMainWindow):
         
         self.tarih = self.takvim.selectedDate()
         self.dogumTarihiText.setText(self.tarih.toString())
-        self.vbox.addWidget(self.dogumTarihiText)
+        
         self.setLayout(self.vbox)
         self.takvim.setGeometry(320, 145, 420, 120)
         
+        
+        
+        self.setLayout(layout)
+        self.setWindowTitle("Staj ve İşletme Takip-Öğrenci İşlemleri")
+        
+        
+        
+        def createFirstExclusiveGroup(self):
+            self.groupbox = QGroupBox("Öğrenci Bilgileri")
+        
+        
+        
+        
+        
+            self.groupbox.setLayout(self.vbox)
+            return self.groupbox
+        #self.groupbox.setGeometry(45, 20, 400, 400)
+        #self.groupbox.setCheckable(True)
+        
+        
+        self.vbox.addWidget(self.sinif)
+        self.vbox.addWidget(self.sinifText)
+        self.vbox.addWidget(self.ogrNoText)
+        self.vbox.addWidget(self.ad)
+        self.vbox.addWidget(self.adText)
+        self.vbox.addWidget(self.soyad)
+        self.vbox.addWidget(self.soyadText)
+        self.vbox.addWidget(self.dogumTarihi)
+        self.vbox.addWidget(self.dogumTarihiText)
+        self.vbox.addWidget(self.telefon)
+        self.vbox.addWidget(self.telefonText)
+        self.vbox.addWidget(self.veliAdSoyad)
+        self.vbox.addWidget(self.veliAdSoyadText)
+        self.vbox.addWidget(self.veliTelefon)
+        self.vbox.addWidget(self.veliTelefonText)
+        self.vbox.addWidget(self.adres)
+        self.vbox.addWidget(self.adresText)
+        self.vbox.addWidget(self.bolum)
+        self.vbox.addWidget(self.bolumText)
+        self.vbox.addWidget(self.dal)
+        self.vbox.addWidget(self.dalText)
+
         self.show()
 
     def showDate(self, tarih):
@@ -183,8 +230,8 @@ class menu(QMainWindow):
 def main():
     app = QApplication(sys.argv)  
    
-    ex = menu()
-    ex.show()
+    pencere = menu()
+    pencere.show()
     sys.exit(app.exec_())
 if __name__ == '__main__':
     main()
