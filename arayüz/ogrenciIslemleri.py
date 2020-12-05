@@ -21,6 +21,7 @@ class menu(QMainWindow):
     def initUI(self):
         
         self.setGeometry(self.left,self.top,self.width,self.height)
+        self.setWindowIcon(QIcon("icon.png"))
         layout = QHBoxLayout()
         bar=self.menuBar()
         dosya=bar.addMenu("Dosya")
@@ -169,6 +170,8 @@ class menu(QMainWindow):
         
         
         self.vbox = QVBoxLayout(self)
+        self.hbox = QHBoxLayout(self)
+        
         
         self.takvim = QCalendarWidget(self)
         self.takvim.setGridVisible(True)
@@ -179,6 +182,7 @@ class menu(QMainWindow):
         self.dogumTarihiText.setText(self.tarih.toString())
         
         self.setLayout(self.vbox)
+        
         self.takvim.setGeometry(320, 145, 420, 120)
         
         
@@ -188,14 +192,19 @@ class menu(QMainWindow):
         
         
         
-        def createFirstExclusiveGroup(self):
+        def birinciGroup(self):
             self.groupbox = QGroupBox("Öğrenci Bilgileri")
-        
-        
-        
-        
-        
+           
+            self.groupbox.setFont(QtGui.QFont("Sanserif", 15))
+
+             
             self.groupbox.setLayout(self.vbox)
+    
+            self.setLayout(self.hbox)
+            self.hbox.addWidget(self.groupbox)
+        
+        
+            
             return self.groupbox
         #self.groupbox.setGeometry(45, 20, 400, 400)
         #self.groupbox.setCheckable(True)
@@ -222,7 +231,9 @@ class menu(QMainWindow):
         self.vbox.addWidget(self.bolumText)
         self.vbox.addWidget(self.dal)
         self.vbox.addWidget(self.dalText)
-
+        
+        
+        
         self.show()
 
     def showDate(self, tarih):
