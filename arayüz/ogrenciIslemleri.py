@@ -14,9 +14,10 @@ class menu(QMainWindow):
         super(menu, self).__init__(parent)
         self.left = 100
         self.top = 100
-        self.width = 640
+        self.width = 800
         self.height = 600
         self.initUI()
+        
     def initUI(self):
         
         self.setGeometry(self.left,self.top,self.width,self.height)
@@ -86,13 +87,20 @@ class menu(QMainWindow):
         self.soyadText.move(120,125)
         self.soyadText.resize(200,20)
         
+        
         self.dogumTarihi = QLabel(self)
         self.dogumTarihi.setText("Doğum Tarihi :")
         self.dogumTarihi.setGeometry(45, 140, 100, 50)
+          
+       
+        
         self.dogumTarihiText=QLineEdit(self)
+        
         self.dogumTarihiText.move(120,155)
         self.dogumTarihiText.resize(200,20)
         
+  
+    
       
         self.telefon= QLabel(self)
         self.telefon.setText("Telefon :")
@@ -149,24 +157,32 @@ class menu(QMainWindow):
         
       
         
-        self.button=QPushButton('Ekle',self)
-        
+        self.button=QPushButton('Ekle',self)       
         self.button.move(20,500)
         #♠self.button.clicked.connect(self.on_click)
-     
+             
         
-     
         
-               
-               
+
+        self.vbox = QVBoxLayout(self)
+        self.cal = QCalendarWidget(self)
+        self.cal.setGridVisible(True)
+        self.cal.clicked[QDate].connect(self.showDate)
+        self.vbox.addWidget(self.cal)
+        
+        self.date = self.cal.selectedDate()
+        self.dogumTarihiText.setText(self.date.toString())
+        self.vbox.addWidget(self.dogumTarihiText)
+        self.setLayout(self.vbox)
+        self.cal.setGeometry(320, 145, 420, 120)
+        
         self.show()
 
+    def showDate(self, date):
+        self.dogumTarihiText.setText(self.date.toString())
 def main():
-    app = QApplication(sys.argv)
+    app = QApplication(sys.argv)  
    
-
-
-    
     ex = menu()
     ex.show()
     sys.exit(app.exec_())
