@@ -165,21 +165,21 @@ class menu(QMainWindow):
         
 
         self.vbox = QVBoxLayout(self)
-        self.cal = QCalendarWidget(self)
-        self.cal.setGridVisible(True)
-        self.cal.clicked[QDate].connect(self.showDate)
-        self.vbox.addWidget(self.cal)
+        self.takvim = QCalendarWidget(self)
+        self.takvim.setGridVisible(True)
+        self.takvim.clicked[QDate].connect(self.showDate)
+        self.vbox.addWidget(self.takvim)
         
-        self.date = self.cal.selectedDate()
-        self.dogumTarihiText.setText(self.date.toString())
+        self.tarih = self.takvim.selectedDate()
+        self.dogumTarihiText.setText(self.tarih.toString())
         self.vbox.addWidget(self.dogumTarihiText)
         self.setLayout(self.vbox)
-        self.cal.setGeometry(320, 145, 420, 120)
+        self.takvim.setGeometry(320, 145, 420, 120)
         
         self.show()
 
-    def showDate(self, date):
-        self.dogumTarihiText.setText(self.date.toString())
+    def showDate(self, tarih):
+        self.dogumTarihiText.setText(self.tarih.toString())
 def main():
     app = QApplication(sys.argv)  
    
