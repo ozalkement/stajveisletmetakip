@@ -18,22 +18,22 @@ class Tab(QDialog):
         #self.setStyleSheet('background-color:grey')
         vbox = QVBoxLayout()
         tabWidget = QTabWidget()
-        #buttonbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        #buttonbox.accepted.connect(self.accept)
-        #buttonbox.rejected.connect(self.reject)
         tabWidget.setFont(QtGui.QFont("Sanserif", 10))
         tabWidget.addTab(TabOgrenci(), "Öğrenci Ekle/Çıkar")
         tabWidget.addTab(TabIsletme(), "İşletme Ekle/Çıkar")
         tabWidget.addTab(TabRapor(), "Rapor Al")
-        tabWidget.addTab(TabGrafik(), "Grafik Oluştur")
+        tabWidget.addTab(TabGrafik(), "Grafik Oluştur") 
+        tabWidget.addTab(TabBilgiEkle(), "Veri Girişleri")         
+        tabWidget.setStyleSheet("background-color: #e0eee0" )
         vbox.addWidget(tabWidget)
         #vbox.addWidget(buttonbox)
         self.setLayout(vbox)
-        self.setGeometry(100, 100, 500, 500)
+        self.setGeometry(100, 100, 500, 300)
 class TabOgrenci(QWidget):
     def __init__(self):
         super().__init__()
         gBoxOgrenci= QGroupBox("Öğrenci Bilgileri")
+        gBoxOgrenci.setStyleSheet("font-weight:bold")
         
         ad = QLabel()
         ad.setText("Ad")
@@ -85,9 +85,7 @@ class TabOgrenci(QWidget):
         vbox1.addWidget(sinifSube)
         vbox1.addWidget(sinifSubeText)  
         vbox1.addWidget(ogrNo)
-        vbox1.addWidget(ogrNoText)
-        vbox1.addWidget(sinifSube)
-        vbox1.addWidget(sinifSubeText)
+        vbox1.addWidget(ogrNoText)        
         vbox1.addWidget(telefon)
         vbox1.addWidget(telefonText)
         vbox1.addWidget(alan)
@@ -102,6 +100,7 @@ class TabOgrenci(QWidget):
         gBoxOgrenci.setLayout(vbox1)  
        
         gBoxVeli= QGroupBox("Veli Bilgileri")
+        gBoxVeli.setStyleSheet("font-weight:bold")
         
         adSoyad = QLabel()
         adSoyad.setText("Ad Soyad")
@@ -118,6 +117,7 @@ class TabOgrenci(QWidget):
 
         
         kaydetButonu=QPushButton('Kaydet') 
+        kaydetButonu.setStyleSheet("background-color: #528b8b; font-weight:bold")
         
         vbox2 = QVBoxLayout()  
         vbox2.addWidget(adSoyad)
@@ -135,7 +135,7 @@ class TabOgrenci(QWidget):
         mainLayout.addWidget(gBoxOgrenci) 
         mainLayout.addWidget(gBoxVeli) 
         
-        
+        vbox2.addStretch()
         
         self.setLayout(mainLayout)
 
@@ -144,6 +144,7 @@ class TabIsletme(QWidget):
     def __init__(self):
         super().__init__()
         gBoxIsletme= QGroupBox("İşletme Bilgileri")
+        gBoxIsletme.setStyleSheet("font-weight:bold")
         
         isletmeAdi = QLabel()
         isletmeAdi.setText("İşletme Adı")
@@ -176,6 +177,7 @@ class TabIsletme(QWidget):
         isletmeIsletmeText=QLineEdit()
         
         bulButonu=QPushButton('Bul') 
+        bulButonu.setStyleSheet("background-color: #c71585; font-weight:bold")
         
         
         isletmeListesiButonu=QPushButton('İşletme Listesi Al')       
@@ -203,15 +205,20 @@ class TabIsletme(QWidget):
         
         
         gBoxOgrenciler= QGroupBox("Öğrenciler")
+        gBoxOgrenciler.setStyleSheet("font-weight:bold")
 
         ogrencilerText=QLineEdit() 
         
         kaydetButonu=QPushButton('Kaydet') 
+        kaydetButonu.setStyleSheet("background-color: #528b8b; font-weight:bold")
         
         vbox2 = QVBoxLayout()  
         vbox2.addWidget(ogrencilerText)
         vbox2.addWidget(kaydetButonu)
         gBoxOgrenciler.setLayout(vbox2) 
+        
+        vbox2.addStretch()
+        vbox1.addStretch()
         mainLayout = QHBoxLayout()
         mainLayout.addWidget(gBoxIsletme) 
         mainLayout.addWidget(gBoxOgrenciler) 
@@ -223,6 +230,8 @@ class TabRapor(QWidget):
     def __init__(self):
         super().__init__()
         gBoxRapor= QGroupBox("Rapor Bilgileri")
+        gBoxRapor.setStyleSheet("font-weight:bold")
+        
         yil=[]
         for i in range(2020,2051):
             yil.append(i)
@@ -237,7 +246,9 @@ class TabRapor(QWidget):
         comboAlan.addItems(listAlan)
         alan=QLabel("Alan")
         
-        isletmeListesiButonu=QPushButton('İşletme Listesi Al')       
+        isletmeListesiButonu=QPushButton('İşletme Listesi Al') 
+        isletmeListesiButonu.setStyleSheet("background-color: #6e8b3d; font-weight:bold")
+        
         isletmeListesiButonu.setGeometry(50, 50, 50, 50)
         
                 
@@ -254,9 +265,14 @@ class TabRapor(QWidget):
               
         isletmeAdi = QLabel()
         isletmeAdi.setText("İşletme Adı")
-        isletmeAdiText=QLineEdit() 
-        isletmeGetirButonu=QPushButton('İşletme Getir') 
+        isletmeAdiText=QLineEdit()
+        
+        isletmeGetirButonu=QPushButton('İşletme Getir')
+        isletmeGetirButonu.setStyleSheet("background-color: #c71585; font-weight:bold")
+        
+        
         kareKodButonu=QPushButton('Kare Kod oluştur') 
+        kareKodButonu.setStyleSheet("background-color: #528b8b; font-weight:bold")
         
         vbox2 = QVBoxLayout()  
         vbox2.addWidget(isletmeAdi)
@@ -264,6 +280,9 @@ class TabRapor(QWidget):
         vbox2.addWidget(isletmeGetirButonu)
         vbox2.addWidget(kareKodButonu)
         gBoxKareKod.setLayout(vbox2) 
+        
+        vbox2.addStretch()
+        vbox1.addStretch()
         mainLayout = QHBoxLayout()
         mainLayout.addWidget(gBoxRapor) 
         mainLayout.addWidget(gBoxKareKod) 
@@ -275,6 +294,8 @@ class TabGrafik(QWidget):
     def __init__(self):
         super().__init__()
         gBoxGrafik = QGroupBox("Grafik Bilgileri")
+        gBoxGrafik.setStyleSheet("font-weight:bold")
+        
         list1=[]
         for i1 in range(2020,2051):
             list1.append(i1)
@@ -297,7 +318,8 @@ class TabGrafik(QWidget):
         combo3.addItems(listAlan)
         alan=QLabel("Alan")
         
-        grafikOlusturButonu=QPushButton('Öğrenci Sayılarına Göre İşletme Grafiği Oluştur')       
+        grafikOlusturButonu=QPushButton('Öğrenci Sayılarına Göre İşletme Grafiği Oluştur')
+        grafikOlusturButonu.setStyleSheet("background-color: #6e8b3d; font-weight:bold")
         grafikOlusturButonu.setGeometry(50, 50, 50, 50)
         
         
@@ -309,13 +331,93 @@ class TabGrafik(QWidget):
         vbox.addWidget(alan)
         vbox.addWidget(combo3)
         vbox.addWidget(grafikOlusturButonu)
+        vbox.addStretch()
+        
         gBoxGrafik.setLayout(vbox)   
         mainLayout = QVBoxLayout()
         mainLayout.addWidget(gBoxGrafik)        
         self.setLayout(mainLayout)
         
         
+class TabBilgiEkle(QWidget):
+    def __init__(self):
+        super().__init__()
+        gBoxBolumDal= QGroupBox("Bölüm ve Dal Bilgileri")
+        gBoxBolumDal.setStyleSheet("font-weight:bold")
         
+        sinifSube = QLabel()
+        sinifSube.setText("Sınıf-Şube")
+        sinifSubeText=QLineEdit()
+        
+        alanIsletme = QLabel()
+        alanIsletme.setText("Alan")
+        alanIsletmeText=QLineEdit()
+                
+        dalIsletme = QLabel()
+        dalIsletme.setText("Dal")
+        dalIsletmeText=QLineEdit()
+        
+        
+        
+        ekleButonu=QPushButton('Bölüm ve Dal Ekle')
+        ekleButonu.setStyleSheet("background-color: #c71585; font-weight:bold")
+        
+               
+        vbox1 = QVBoxLayout()           
+        vbox1.addWidget(sinifSube)
+        vbox1.addWidget(sinifSubeText)  
+        vbox1.addWidget(alanIsletme)
+        vbox1.addWidget(alanIsletmeText)  
+        vbox1.addWidget(dalIsletme)
+        vbox1.addWidget(dalIsletmeText)
+        
+        
+        vbox1.addWidget(ekleButonu)
+        gBoxBolumDal.setLayout(vbox1)  
+        
+        
+        gBoxOgretmen= QGroupBox("Koordinatör Öğretmen Bilgileri")
+        gBoxOgretmen.setStyleSheet("font-weight:bold")
+
+        adOrt = QLabel()
+        adOrt.setText("Ad")
+        adOrtText=QLineEdit()
+        
+        soyadOgrt = QLabel()
+        soyadOgrt.setText("Soyad")
+        soyadOgrtText=QLineEdit()
+        
+        
+        #VERİ TABANINDAN ALINMALI ALAN BİLGİLERİ   
+        listAlan=["Bilişim Teknolojileri","Elektirik/Elektronik","Makine","Çocuk Gelişim"]        
+        comboAlan = QComboBox()
+        comboAlan.addItems(listAlan)
+        alanOrt=QLabel("Alan")
+
+        
+        ekleOgrtButonu=QPushButton('Öğretmen Ekle') 
+        ekleOgrtButonu.setStyleSheet("background-color: #528b8b; font-weight:bold")
+        
+        vbox2 = QVBoxLayout()  
+            
+        vbox2.addWidget(adOrt)
+        vbox2.addWidget(adOrtText)
+        vbox2.addWidget(soyadOgrt)
+        vbox2.addWidget(soyadOgrtText)               
+        vbox2.addWidget(alanOrt)
+        vbox2.addWidget(comboAlan)
+        vbox2.addWidget(ekleOgrtButonu)
+        gBoxOgretmen.setLayout(vbox2) 
+        
+        vbox2.addStretch()
+        vbox1.addStretch()
+        mainLayout = QHBoxLayout()
+        mainLayout.addWidget(gBoxBolumDal) 
+        mainLayout.addWidget(gBoxOgretmen) 
+        
+        
+        
+        self.setLayout(mainLayout)        
         
         
 app = QApplication(sys.argv)
