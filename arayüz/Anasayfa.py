@@ -262,6 +262,7 @@ class TabRapor(QWidget):
         
         
         gBoxKareKod= QGroupBox("KARE KOD OLUŞTUR")
+        gBoxKareKod.setStyleSheet("font-weight:bold")
               
         isletmeAdi = QLabel()
         isletmeAdi.setText("İşletme Adı")
