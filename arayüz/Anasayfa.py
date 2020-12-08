@@ -207,7 +207,7 @@ class TabIsletme(QWidget):
         gBoxOgrenciler= QGroupBox("Öğrenciler")
         gBoxOgrenciler.setStyleSheet("font-weight:bold")
 
-        ogrencilerText=QLineEdit() 
+        ogrencilerText=QListWidget() 
         
         kaydetButonu=QPushButton('Kaydet') 
         kaydetButonu.setStyleSheet("background-color: #528b8b; font-weight:bold")
