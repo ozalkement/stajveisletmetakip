@@ -92,8 +92,6 @@ class TabOgrenci(QWidget):
         isletme.setText("İşletme")
         isletmeText=QLineEdit()
         
-
-
         
                 
         vbox1 = QVBoxLayout()       
@@ -133,10 +131,41 @@ class TabOgrenci(QWidget):
         adres.setText("Adres")
         adresText=QLineEdit()
 
-
+        #VERİ TABANINA GİRİŞLER
+        
+        def ogrenciBilgiKayit():
+            
+           
+            
+            veritabani = 'stajIsletme.sqlite'
+            dosya_var_mi = os.path.exists(veritabani)
+            if dosya_var_mi:
+                veritabani = sql.connect(veritabani)
+                imlec = veritabani.cursor()
+            
+          
+        
+                sorgu = "INSERT INTO ogrenciBilgileri (ogrNo, ogrAd, ogrSoyad, subeSinif, telefon,egitimYili,veliAdSoyad,veliTelefon,adres,bolumID,dalID) VALUES(?,?,?,?,?,?,?,?,?,?,?)"
+                
+                veri = [ogrNo.text(), adText.text(), soyadText.text(), sinifSubeText.text(), telefonText.text(),egitimYiliText.text(),adSoyadText.text(), telefonVeliText.text(), adresText, alanText.text(),dalText.text()]
+            
+                imlec.execute(sorgu, veri)
+            
+                veritabani.commit()
+                veritabani.close()
+        
+              
+        
+        
+        
+        
+        
+        #VERİ TABANINA GİRİŞLER BİTİMİ
+        
         
         kaydetButonu=QPushButton('Kaydet') 
         kaydetButonu.setStyleSheet("background-color: #528b8b; font-weight:bold")
+        kaydetButonu.clicked.connect(ogrenciBilgiKayit)
         
         vbox2 = QVBoxLayout()  
         vbox2.addWidget(adSoyad)
@@ -506,10 +535,105 @@ class TabBilgiEkle(QWidget):
 
         
 app = QApplication(sys.argv)
-db = QSqlDatabase.addDatabase("QSQLITE")
-db.setDatabaseName("stajIsletme.db")
-if db.open():
-        print("DB başarılı açıldı.")
+vt = sqlite3.connect('stajIsletme.sqlite')
+im = vt.cursor()
+            
+sorguBolum= """CREATE TABLE IF NOT EXISTS "bolum" ("bolumID"	INTEGER ,	"bolumAdi"	TEXT,	PRIMARY KEY("bolumID"))"""
+	
+im.execute(sorguBolum)
+                
+sorguDal= """CREATE TABLE IF NOT EXISTS  "dal" ("dalID"	INTEGER ,	
+	"dalAdi"	TEXT,
+	"bolumID"	INTEGER,
+	PRIMARY KEY("dalID"),
+	CONSTRAINT "bolumDalFK" FOREIGN KEY("bolumID") REFERENCES "bolum"("bolumID")
+)"""
+	
+       
+im.execute(sorguDal)  
+
+
+
+sorguIl= """CREATE TABLE IF NOT EXISTS "il" (
+	"ilID"	INTEGER ,
+	"ilAdi"	TEXT,
+	PRIMARY KEY("ilID")
+) """
+	
+im.execute(sorguIl)  
+
+
+sorguIsletme= """CREATE TABLE IF NOT EXISTS "isletmeBilgileri" (
+	"isletmeID"	INTEGER ,
+	"isletmeAdi"	TEXT,
+	"temsilciAdSoyad"	TEXT,
+	"telefon"	TEXT,
+	"ePosta"	TEXT,
+	"vergiNo"	INTEGER,
+	"sgkNo"	INTEGER,
+	"adres"	TEXT,
+	"il"	INTEGER,
+	"iban"	TEXT,
+	"tarihZaman"	TEXT,
+	"not"	TEXT,
+	CONSTRAINT "isletmeIlFK" FOREIGN KEY("il") REFERENCES "il"("ilID"),
+	CONSTRAINT "isletmeIDPK" PRIMARY KEY("isletmeID")
+) """
+	
+im.execute(sorguIsletme)  
+
+
+
+
+
+sorguOgretmen= """CREATE TABLE IF NOT EXISTS "koordinatorOgretmen" (
+	"ogrtmenID"	INTEGER ,
+	"ogrtAd"	TEXT,
+	"ogrtSoyad"	TEXT,
+	"bolumID"	INTEGER,
+	FOREIGN KEY("bolumID") REFERENCES "bolum"("bolumID"),
+	PRIMARY KEY("ogrtmenID")
+) """
+	
+im.execute(sorguOgretmen)  
+             
+            
+sorguOgrenci = """ CREATE TABLE IF NOT EXISTS "ogrenciBilgileri" 
+            ( "ogrNo" INTEGER , "tcNo" INTEGER UNIQUE, "ogrAd" TEXT, 
+             "ogrSoyad" TEXT, "subeSinif" TEXT, "telefon" TEXT, 
+             "egitimYili" TEXT, "veliAdSoyad" TEXT, "veliTelefon" TEXT, 
+             "adres" TEXT, "il" INTEGER, "bolumID" INTEGER, 
+             "dalID" INTEGER, CONSTRAINT "ogrNoFK" PRIMARY KEY("ogrNo"),
+             CONSTRAINT "ogrenciDalFK" FOREIGN KEY("dalID") REFERENCES "dal"("dalID"), 
+             CONSTRAINT "ogrenciIlFK" FOREIGN KEY("il") REFERENCES "il"("ilID"), 
+             CONSTRAINT "ogrenciBolumFK" FOREIGN KEY("bolumID") REFERENCES "bolum"("bolumID") )"""
+ 
+            
+            
+im.execute(sorguOgrenci)            
+            
+sorguStaj = """  CREATE TABLE IF NOT EXISTS "stajBilgileri" (
+	"stajID" INTEGER,
+	"egitimYili"	INTEGER,
+	"donem"	INTEGER,
+	"isletmeID"	INTEGER,
+	"bolumID"	INTEGER,
+	"dalID"	INTEGER,
+	"ogretmenID"	INTEGER,
+	"tarihZaman"	TEXT,
+	CONSTRAINT "stajPK" PRIMARY KEY("stajID") ,
+	CONSTRAINT "stajBolumFK" FOREIGN KEY("bolumID") REFERENCES "bolum"("bolumID"),
+	CONSTRAINT "stajOgrtFK" FOREIGN KEY("ogretmenID") REFERENCES "koordinatorOgretmen"("ogrtmenID"),
+	CONSTRAINT "stajIsletmeFK" FOREIGN KEY("isletmeID") REFERENCES "isletmeBilgileri"("isletmeID"),
+	CONSTRAINT "stajDalFK" FOREIGN KEY("dalID") REFERENCES "dal"("dalID")
+) """         
+            
+im.execute(sorguStaj)             
+vt.commit()
+           
+
+#if vt.open():
+        #print("DB başarılı açıldı.")
 tabdialog = Tab()
 tabdialog.show()
 app.exec()
