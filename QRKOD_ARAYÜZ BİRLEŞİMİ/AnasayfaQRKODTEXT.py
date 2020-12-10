@@ -7,6 +7,7 @@ Created on Sun Dec  6 11:51:47 2020
 
 
 from PyQt5 import QtGui
+import os
 from PyQt5.QtWidgets import *
 import sys
 from PyQt5.QtGui import QIcon
@@ -26,10 +27,6 @@ from reportlab.pdfbase.ttfonts import TTFont
 import qrcode
 from PIL import Image
 import qrcode.image.pil
-
-
-    
-
 
 
 class Tab(QDialog):
@@ -313,18 +310,19 @@ class TabRapor(QWidget):
             kart_boyutu = (3.54, 5.31)
             kanvas = canvas.Canvas(packet, pagesize=kart_boyutu)
             
+            isletmeKareKod =isletmeAdiText.text()
             
-    
+            
     
             # QR Code Kısmı
                
-            qr = qrcode.QRCode(version=1,box_size=2,border=2)
-            qr.add_data("{} ".format(isletmeAdiText))
+            qr = qrcode.QRCode(version=1,box_size=1.3,border=2)
+            qr.add_data("{} ".format(isletmeKareKod))
             qr.make(fit=True)
             img = qr.make_image(image_factory= qrcode.image.pil.PilImage, fill_color='black', back_color='white')
             img = img.resize((64,64), Image.ANTIALIAS)
-            img.save('qrcode{}.png'.format(isletmeAdiText))
-            kanvas.drawImage('qrcode{}.png'.format(isletmeAdiText),1.3*inch,1.3*inch)
+            img.save('qrcode{}.png'.format(isletmeKareKod))
+            kanvas.drawImage('qrcode{}.png'.format(isletmeKareKod),1.3*inch,1.3*inch)
             kanvas.showPage()
 
             kanvas.save()
