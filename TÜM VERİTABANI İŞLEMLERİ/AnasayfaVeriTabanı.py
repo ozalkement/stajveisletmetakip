@@ -645,25 +645,61 @@ class TabGrafik(QWidget):
         combo2 = QComboBox()
         bitisYili=QLabel("Bitiş Yılı")
         combo2.addItems(list2)
-        #VERİ TABANINDAN ALINMALI ALAN BİLGİLERİ   
-        veritabani = 'stajIsletme.sqlite'           
-        veritabani = sqlite3.connect(veritabani)
-        imlec = veritabani.cursor()
-        comboAlan=QComboBox()        
-        imlec.execute("SELECT bolumAdi FROM bolum")
-        bolumListe = imlec.fetchall()
-        bolumUzunlugu = len(bolumListe)
+        listAlan=[]
         
-        for i in range(0, bolumUzunlugu):
-            #bolumListe = list(map(str, bolumListe))
-            bolum = bolumListe[i]
-            comboAlan.addItems(bolum)
-        veritabani.commit()
+        #VERİ TABANI BİLGİ ALIMI BAŞLANGI
+        veritabani = 'stajIsletme.sqlite'
+        dosya_var_mi = os.path.exists(veritabani)
+        if dosya_var_mi:
+                    veritabani = sqlite3.connect(veritabani)
+                    imlec = veritabani.cursor() 
+                    sorgu = " SELECT bolumAdi FROM bolum"          
+                    imlec.execute(sorgu)
+                    bolumler=imlec.fetchall()
+                    for x in bolumler:
+                        listAlan.append(x[0])
+                    veritabani.commit()
+                    veritabani.close()
+        
+        def bolumyilisletmegrafik():
+            veritabani = 'stajIsletme.sqlite'
+            dosya_var_mi = os.path.exists(veritabani)
+            if dosya_var_mi:
+                    veritabani = sqlite3.connect(veritabani)
+                    imlec = veritabani.cursor() 
+                    sorgu = " SELECT isl.isletmeAdi as isletmeadi,count() as ogrencisayisi FROM stajBilgileri st,isletmeBilgileri isl WHERE (egitimyili BETWEEN ? AND ?) AND st.isletmeID ==isl.isletmeID  GROUP BY st.isletmeID  "               
+                    veri = [combo1.currentText(),combo2.currentText()]            
+                    imlec.execute(sorgu, veri)
+                    df = pd.DataFrame(imlec.fetchall())
+                    print(df)
+                    df.columns = ['firma', 'sayi']
+                    #df.index = ['firma', 'sayi']
+                    print("Yeni Hali")
+                    print(df)
+                    #ax = df.plot(kind='bar', title ="İşletme Başı Öğrenci Sayısı", figsize=(10, 6), legend=True, fontsize=12)
+                    #ax.set_xlabel("İşletme İsmi", fontsize=12)
+                    #ax.set_ylabel("Öğrenci Sayısı", fontsize=12)
+                    #plt.show()
+                    df.plot.bar(x="firma", y="sayi", rot=0, title="İşletme Başı Öğrenci Sayısı")
+                    plt.show()
+                
+                    veritabani.commit()
+                    veritabani.close()               
+        
+        #VERİTABANI BİLGİ ALIMI BİTİŞ
+        
+        
+        
+        #VERİ TABANINDAN ALINMALI ALAN BİLGİLERİ   
+        #listAlan=["Bilişim Teknolojileri","Elektirik/Elektronik","Makine","Çocuk Gelişim"]        
+        combo3 = QComboBox()
+        combo3.addItems(listAlan)
         alan=QLabel("Alan")
         
         grafikOlusturButonu=QPushButton('Öğrenci Sayılarına Göre İşletme Grafiği Oluştur')
         grafikOlusturButonu.setStyleSheet("background-color: #6e8b3d; font-weight:bold")
         grafikOlusturButonu.setGeometry(50, 50, 50, 50)
+        grafikOlusturButonu.clicked.connect(bolumyilisletmegrafik)
         
         
         vbox = QVBoxLayout()
@@ -672,7 +708,7 @@ class TabGrafik(QWidget):
         vbox.addWidget(bitisYili)
         vbox.addWidget(combo2)
         vbox.addWidget(alan)
-        vbox.addWidget(comboAlan)
+        vbox.addWidget(combo3)
         vbox.addWidget(grafikOlusturButonu)
         vbox.addStretch()
         
