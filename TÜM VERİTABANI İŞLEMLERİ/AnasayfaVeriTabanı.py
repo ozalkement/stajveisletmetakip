@@ -28,6 +28,9 @@ import qrcode
 from PIL import Image
 import qrcode.image.pil
 
+import matplotlib.pyplot as plt
+import pandas as pd
+
 
 class Tab(QDialog):
     def __init__(self):
