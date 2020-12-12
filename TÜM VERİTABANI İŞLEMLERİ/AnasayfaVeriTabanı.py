@@ -29,6 +29,11 @@ from PIL import Image
 import qrcode.image.pil
 
 
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+
 class Tab(QDialog):
     def __init__(self):
         super().__init__()
@@ -305,11 +310,11 @@ class TabIsletme(QWidget):
                 imlec = veritabani.cursor() 
             
                             
-                imlec.execute("SELECT oB.bolumID FROM bolum as b, ogrenciBilgileri as oB WHERE b.bolumID=oB.bolumID AND b.bolumAdi=comboBolum.currentText()")
+                imlec.execute("SELECT oB.bolumID FROM bolum as b, ogrenciBilgileri as oB WHERE b.bolumID=oB.bolumID AND b.bolumAdi=?",comboBolum.currentText())
                 comboBolumID = imlec.fetchone()
                 imlec = veritabani.cursor()
                 
-                imlec.execute("SELECT oB.dalID FROM dal as d, ogrenciBilgileri as oB WHERE d.dalID=oB.dalID AND d.dalAdi=comboDal.currentText()")
+                imlec.execute("SELECT oB.dalID FROM dal as d, ogrenciBilgileri as oB WHERE d.dalID=oB.dalID AND d.dalAdi=?",comboDal.currentText())
                 comboDalID = imlec.fetchone()
               
                 veri = [ogrNoInt, adText.text(), soyadText.text(), sinifSubeText.text(), telefonText.text(),egitimYiliText.text(),adSoyadText.text(), telefonVeliText.text(), adresText.text(), comboBolumID,comboDalID]
@@ -645,6 +650,58 @@ class TabGrafik(QWidget):
         combo2 = QComboBox()
         bitisYili=QLabel("Bitiş Yılı")
         combo2.addItems(list2)
+        
+        listAlan=[]
+        
+         #VERİ TABANI BİLGİ ALIMI BAŞLANGI
+        veritabani = 'stajIsletme.sqlite'
+        dosya_var_mi = os.path.exists(veritabani)
+        if dosya_var_mi:
+                    veritabani = sqlite3.connect(veritabani)
+                    imlec = veritabani.cursor() 
+                    sorgu = " SELECT bolumAdi FROM bolum"          
+                    imlec.execute(sorgu)
+                    bolumler=imlec.fetchall()
+                    for x in bolumler:
+                        listAlan.append(x[0])
+                    veritabani.commit()
+                    veritabani.close()
+        
+        def bolumyilisletmegrafik():
+            veritabani = 'stajIsletme.sqlite'
+            dosya_var_mi = os.path.exists(veritabani)
+            if dosya_var_mi:
+                    veritabani = sqlite3.connect(veritabani)
+                    imlec = veritabani.cursor() 
+                    sorgu = " SELECT isl.isletmeAdi as isletmeadi,count() as ogrencisayisi FROM stajBilgileri st,isletmeBilgileri isl WHERE (egitimyili BETWEEN ? AND ?) AND st.isletmeID ==isl.isletmeID  GROUP BY st.isletmeID  "               
+                    veri = [combo1.currentText(),combo2.currentText()]            
+                    imlec.execute(sorgu, veri)
+                    df = pd.DataFrame(imlec.fetchall())
+                    print(df)
+                    df.columns = ['firma', 'sayi']
+                    #df.index = ['firma', 'sayi']
+                    print("Yeni Hali")
+                    print(df)
+                    #ax = df.plot(kind='bar', title ="İşletme Başı Öğrenci Sayısı", figsize=(10, 6), legend=True, fontsize=12)
+                    #ax.set_xlabel("İşletme İsmi", fontsize=12)
+                    #ax.set_ylabel("Öğrenci Sayısı", fontsize=12)
+                    #plt.show()
+                    df.plot.bar(x="firma", y="sayi", rot=0, title="İşletme Başı Öğrenci Sayısı")
+                    plt.show()
+                
+                    veritabani.commit()
+                    veritabani.close()               
+        
+        #VERİTABANI BİLGİ ALIMI BİTİŞ
+        
+        
+        
+        
+        
+
+        
+        
+        
         #VERİ TABANINDAN ALINMALI ALAN BİLGİLERİ   
         veritabani = 'stajIsletme.sqlite'           
         veritabani = sqlite3.connect(veritabani)
@@ -707,13 +764,14 @@ class TabBilgiEkle(QWidget):
                 sorgu = "INSERT INTO bolum (bolumAdi) VALUES(?)"
                 veri = [alanIsletmeText.text()]          
                 imlec.execute(sorgu, veri)            
-                veritabani.commit()
-                veritabani.close()
+            veritabani.commit()
+            veritabani.close()
                               
         #VERİ TABANINA GİRİŞLER BİTİMİ
         
         ekleBolumButonu=QPushButton('Bölüm Ekle')
         ekleBolumButonu.setStyleSheet("background-color: #b7ff55; font-weight:bold")
+        ekleBolumButonu.clicked.connect(bolumBilgiKayit)
                 
         dalIsletme = QLabel()
         dalIsletme.setText("Dal")
@@ -721,6 +779,7 @@ class TabBilgiEkle(QWidget):
         
         bolumD = QLabel()
         bolumD.setText("Bölüm")
+        
         veritabani = 'stajIsletme.sqlite'           
         veritabani = sqlite3.connect(veritabani)
         imlec = veritabani.cursor()
@@ -741,12 +800,22 @@ class TabBilgiEkle(QWidget):
             dosya_var_mi = os.path.exists(veritabani)
             if dosya_var_mi:
                 veritabani = sqlite3.connect(veritabani)
-                imlec = veritabani.cursor()                             
-                sorgu = "INSERT INTO bolum (dalAdi,bolumID,subeSinif) VALUES(?,?,?)"
-                imlec.execute("SELECT d.bolumID FROM bolum as b, dal as d WHERE b.bolumID=d.bolumID AND b.bolumAdi=alanIsletmeText.text()")
-                bolumAdiID = imlec.fetchone()
+                imlec = veritabani.cursor() 
+                
+               
+      
+                 
+                 
+                sorgu = "INSERT INTO dal (dalAdi,bolumID,subeSinif) VALUES(?,?,?)"
+                
+               
+              
+                
+                imlec.execute("SELECT b.bolumID FROM bolum as b where b.bolumAdi=?",list(comboBolum.currentText()))
+                bolumAdiID = imlec.fetchall()    
+                
                 imlec = veritabani.cursor()
-                veri = [dalIsletmeText.text(),bolumAdiID,sinifSubeText]          
+                veri = [dalIsletmeText.text(),int(bolumAdiID),sinifSubeText.text()]          
                 imlec.execute(sorgu, veri)            
                 veritabani.commit()
                 veritabani.close()
@@ -837,15 +906,15 @@ vt = sqlite3.connect('stajIsletme.sqlite')
 im = vt.cursor()
             
 sorguBolum= """CREATE TABLE IF NOT EXISTS "bolum" ("bolumID"	INTEGER ,	
-"bolumAdi"	TEXT, 	PRIMARY KEY("bolumID"))"""
-	
+"bolumAdi"	TEXT, 	PRIMARY KEY("bolumID" AUTOINCREMENT))"""
+
 im.execute(sorguBolum)
                 
 sorguDal= """CREATE TABLE IF NOT EXISTS  "dal" ("dalID"	INTEGER ,	
 	"dalAdi"	TEXT,
 	"bolumID"	INTEGER,
     "subeSinif"	TEXT,
-	PRIMARY KEY("dalID"),
+	PRIMARY KEY("dalID" AUTOINCREMENT),
 	CONSTRAINT "bolumDalFK" FOREIGN KEY("bolumID") REFERENCES "bolum"("bolumID")
 )"""
 	
@@ -877,7 +946,7 @@ sorguIsletme= """CREATE TABLE IF NOT EXISTS "isletmeBilgileri" (
 	"tarihZaman"	TEXT,
 	"not"	TEXT,
 	CONSTRAINT "isletmeIlFK" FOREIGN KEY("il") REFERENCES "il"("ilID"),
-	CONSTRAINT "isletmeIDPK" PRIMARY KEY("isletmeID")
+	CONSTRAINT "isletmeIDPK" PRIMARY KEY("isletmeID" AUTOINCREMENT)
 ) """
 	
 im.execute(sorguIsletme)  
@@ -892,7 +961,7 @@ sorguOgretmen= """CREATE TABLE IF NOT EXISTS "koordinatorOgretmen" (
 	"ogrtSoyad"	TEXT,
 	"bolumID"	INTEGER,
 	FOREIGN KEY("bolumID") REFERENCES "bolum"("bolumID"),
-	PRIMARY KEY("ogrtmenID")
+	PRIMARY KEY("ogrtmenID" AUTOINCREMENT)
 ) """
 	
 im.execute(sorguOgretmen)  
@@ -920,7 +989,7 @@ sorguStaj = """  CREATE TABLE IF NOT EXISTS "stajBilgileri" (
 	"dalID"	INTEGER,
 	"ogretmenID"	INTEGER,
 	"tarihZaman"	TEXT,
-	CONSTRAINT "stajPK" PRIMARY KEY("stajID") ,
+	CONSTRAINT "stajPK" PRIMARY KEY("stajID" AUTOINCREMENT) ,
 	CONSTRAINT "stajBolumFK" FOREIGN KEY("bolumID") REFERENCES "bolum"("bolumID"),
 	CONSTRAINT "stajOgrtFK" FOREIGN KEY("ogretmenID") REFERENCES "koordinatorOgretmen"("ogrtmenID"),
 	CONSTRAINT "stajIsletmeFK" FOREIGN KEY("isletmeID") REFERENCES "isletmeBilgileri"("isletmeID"),
