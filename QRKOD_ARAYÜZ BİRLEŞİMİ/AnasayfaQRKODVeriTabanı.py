@@ -38,11 +38,12 @@ class Tab(QDialog):
         vbox = QVBoxLayout()
         tabWidget = QTabWidget()
         tabWidget.setFont(QtGui.QFont("Sanserif", 10))
-        tabWidget.addTab(TabOgrenci(), "Öğrenci Ekle/Çıkar")
+        tabWidget.addTab(TabBilgiEkle(), "Veri Girişleri")
         tabWidget.addTab(TabIsletme(), "İşletme Ekle/Çıkar")
+        tabWidget.addTab(TabOgrenci(), "Öğrenci Ekle/Çıkar")        
         tabWidget.addTab(TabRapor(), "Rapor Al")
         tabWidget.addTab(TabGrafik(), "Grafik Oluştur") 
-        tabWidget.addTab(TabBilgiEkle(), "Veri Girişleri")         
+               
         tabWidget.setStyleSheet("background-color: #e0eee0" )
         vbox.addWidget(tabWidget)
         #vbox.addWidget(buttonbox)
@@ -146,8 +147,10 @@ class TabOgrenci(QWidget):
           
         
                 sorgu = "INSERT INTO ogrenciBilgileri (ogrNo, ogrAd, ogrSoyad, subeSinif, telefon,egitimYili,veliAdSoyad,veliTelefon,adres,bolumID,dalID) VALUES(?,?,?,?,?,?,?,?,?,?,?)"
-                
-                veri = [ogrNo.text(), adText.text(), soyadText.text(), sinifSubeText.text(), telefonText.text(),egitimYiliText.text(),adSoyadText.text(), telefonVeliText.text(), adresText, alanText.text(),dalText.text()]
+                ogrNoInt=int(ogrNoText.text())
+                alanInt=int(alanText.text())
+                dalInt= int(dalText.text())
+                veri = [ogrNoInt, adText.text(), soyadText.text(), sinifSubeText.text(), telefonText.text(),egitimYiliText.text(),adSoyadText.text(), telefonVeliText.text(), adresText.text(), alanInt,dalInt]
             
                 imlec.execute(sorgu, veri)
             
