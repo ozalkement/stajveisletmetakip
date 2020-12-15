@@ -197,27 +197,35 @@ class TabOgrenci(QWidget):
             if dosya_var_mi:
                 veritabani = sqlite3.connect(veritabani)
                 imlec = veritabani.cursor()
-            
-          
-        
-                sorgu = "INSERT INTO ogrenciBilgileri (ogrNo, ogrAd, ogrSoyad, subeSinif, telefon,egitimYili,veliAdSoyad,veliTelefon,adres,bolumID,dalID) VALUES(?,?,?,?,?,?,?,?,?,?,?)"
-                ogrNoInt=int(ogrNoText.text()) 
-                imlec = veritabani.cursor() 
-               
-                            
-                imlec.execute("SELECT oB.bolumID FROM bolum as b, ogrenciBilgileri as oB WHERE b.bolumID=oB.bolumID AND b.bolumAdi=comboBolum.currentText()")
-                comboBolumID = imlec.fetchone()
+               #--------------------------------------------------
+                veriAlma="SELECT b.bolumID FROM bolum as b where b.bolumAdi=?"
+                v=[comboBolum.currentText()]
+                imlec.execute(veriAlma, v)
+                bolumAdiID = imlec.fetchone()
+                bID=str(bolumAdiID)
+                b = bID.replace(",","").replace("(","").replace(")","").replace("'","")
+                print(b)
+                imlec = veritabani.cursor()
+                #--------------------------------------------------
+                veriAlmaDal="SELECT d.dalID FROM dal as d where d.dalAdi=?"
+                vDal=[comboBolum.currentText()]
+                imlec.execute(veriAlmaDal, vDal)
+                dalAdiID = imlec.fetchone()
+                dID=str(dalAdiID)
+                d = bID.replace(",","").replace("(","").replace(")","").replace("'","")
+                print(b)
                 imlec = veritabani.cursor()
                 
-                imlec.execute("SELECT oB.dalID FROM dal as d, ogrenciBilgileri as oB WHERE d.dalID=oB.dalID AND d.dalAdi=comboDal.currentText()")
-                comboDalID = imlec.fetchone()
-              
-                veri = [ogrNoInt, adText.text(), soyadText.text(), sinifSubeText.text(), telefonText.text(),egitimYiliText.text(),adSoyadText.text(), telefonVeliText.text(), adresText.text(), comboBolumID,comboDalID]
-            
-                imlec.execute(sorgu, veri)
-            
-                veritabani.commit()
-                veritabani.close()
+               
+                #--------------------------------------------------
+             
+        
+            sorgu = "INSERT INTO ogrenciBilgileri (ogrNo, ogrAd, ogrSoyad, subeSinif, telefon,egitimYili,veliAdSoyad,veliTelefon,adres,bolumID,dalID) VALUES(?,?,?,?,?,?,?,?,?,?,?)"
+           
+            veri = [ogrNoText.text(),adText.text(),soyadText.text(),sinifSubeText.text(),telefonText.text(),comboYil.currentText(),adSoyadText.text(),telefonVeliText.text(),adresText.text(),int(b),int(d)]          
+            imlec.execute(sorgu, veri)            
+            veritabani.commit()
+            veritabani.close()
         
               
   
@@ -289,10 +297,20 @@ class TabIsletme(QWidget):
         adres.setText("Adres")
         adresText=QLineEdit()
         
-        
+       
         egitimYiliIsletme = QLabel()
         egitimYiliIsletme.setText("Eğitim Yılı")
-        egitimYiliIsletmeText=QLineEdit()
+        yil=[]
+        for i in range(2020,2051):
+            yil.append(i)
+        for x in range(0,len(yil)):
+            yil[x]=str(yil[x])
+        egitimYiliIsletmeCombo = QComboBox()
+        yilLabel=QLabel("YIL")
+        egitimYiliIsletmeCombo.addItems(yil)
+        
+        
+        
         
         notu = QLabel()
         notu.setText("Not")
@@ -345,7 +363,7 @@ class TabIsletme(QWidget):
         vbox1.addWidget(adres)
         vbox1.addWidget(adresText) 
         vbox1.addWidget(egitimYiliIsletme)
-        vbox1.addWidget(egitimYiliIsletmeText)
+        vbox1.addWidget(egitimYiliIsletmeCombo)
         vbox1.addWidget(notu)
         vbox1.addWidget(notuText) 
         
@@ -373,19 +391,45 @@ class TabStaj(QWidget):
         
         isletmeAdi = QLabel()
         isletmeAdi.setText("İşletme Adı")
-        isletmeAdiText=QLineEdit()
+        
+        veritabani = 'stajIsletme.sqlite'           
+        veritabani = sqlite3.connect(veritabani)
+        imlec = veritabani.cursor()
+        comboIsletme=QComboBox()        
+        imlec.execute("SELECT isletmeAdi FROM isletmeBilgileri")
+        isletmeListe = imlec.fetchall()
+        isletmeUzunlugu = len(isletmeListe)
+        
+        for i in range(0, isletmeUzunlugu):
+            #bolumListe = list(map(str, bolumListe))
+            isletmeL = isletmeListe[i]
+            comboIsletme.addItems(isletmeL)
+        veritabani.commit()
+        
+        
+        
+        
+        
         
         sinifSube = QLabel()
         sinifSube.setText("Sınıf-Şube")
-        sinifSubeText=QLineEdit()
+
+        sinifSubeCombo=QComboBox()        
+        imlec.execute("SELECT subeSinif FROM dal")
+        sinifListe = imlec.fetchall()
+        sinifUzunlugu = len(sinifListe)
+        
+        for i in range(0, sinifUzunlugu):
+            #bolumListe = list(map(str, bolumListe))
+            sinif = sinifListe[i]
+            sinifSubeCombo.addItems(sinif)
+        veritabani.commit()
         
         
         alanIsletme = QLabel()
         alanIsletme.setText("Alan")
         
-        veritabani = 'stajIsletme.sqlite'           
-        veritabani = sqlite3.connect(veritabani)
-        imlec = veritabani.cursor()
+        
         alanIsletmeText=QComboBox()        
         imlec.execute("SELECT bolumAdi FROM bolum")
         bolumListe = imlec.fetchall()
@@ -415,7 +459,14 @@ class TabStaj(QWidget):
         
         egitimYiliIsletme = QLabel()
         egitimYiliIsletme.setText("Eğitim Yılı")
-        egitimYiliIsletmeText=QLineEdit()
+        yil=[]
+        for i in range(2020,2051):
+            yil.append(i)
+        for x in range(0,len(yil)):
+            yil[x]=str(yil[x])
+        egitimYiliIsletmeCombo = QComboBox()
+        yilLabel=QLabel("YIL")
+        egitimYiliIsletmeCombo.addItems(yil)
         
         donem = QLabel()
         donem.setText("Dönemi")
@@ -423,8 +474,8 @@ class TabStaj(QWidget):
         
 
         
-        bulButonu=QPushButton('Bul') 
-        bulButonu.setStyleSheet("background-color: #c71585; font-weight:bold")
+        #bulButonu=QPushButton('Bul') 
+        #bulButonu.setStyleSheet("background-color: #c71585; font-weight:bold")
         
         
         isletmeListesiButonu=QPushButton('İşletme Listesi Al')       
@@ -433,20 +484,20 @@ class TabStaj(QWidget):
                 
         vbox1 = QVBoxLayout()       
         vbox1.addWidget(isletmeAdi)
-        vbox1.addWidget(isletmeAdiText)
+        vbox1.addWidget(comboIsletme)
         vbox1.addWidget(sinifSube)
-        vbox1.addWidget(sinifSubeText)          
+        vbox1.addWidget(sinifSubeCombo)          
         vbox1.addWidget(alanIsletme)
         vbox1.addWidget(alanIsletmeText)  
         vbox1.addWidget(dalIsletme)
         vbox1.addWidget(dalIsletmeText)
         vbox1.addWidget(egitimYiliIsletme)
-        vbox1.addWidget(egitimYiliIsletmeText) 
+        vbox1.addWidget(egitimYiliIsletmeCombo) 
         vbox1.addWidget(donem)
         vbox1.addWidget(donemText)
          
         
-        vbox1.addWidget(bulButonu)
+        #vbox1.addWidget(bulButonu)
         gBoxIsletme.setLayout(vbox1)  
         
         
@@ -454,6 +505,20 @@ class TabStaj(QWidget):
         gBoxOgrenciler.setStyleSheet("font-weight:bold")
 
         ogrencilerText=QListWidget()
+        
+        imlec.execute("SELECT ogrAd, ogrSoyad FROM ogrenciBilgileri")
+        dalListe = imlec.fetchall()
+        dalUzunlugu = len(dalListe)
+        
+        for i in range(0, dalUzunlugu):
+            #bolumListe = list(map(str, bolumListe))
+            dal = dalListe[i]
+            dalIsletmeText.addItems(dal)
+        veritabani.commit()
+        
+        
+        
+        
         ogrencilerText.insertItem(1, "Şermin AKSOY")
         
         listeleButonu=QPushButton('Listele') 
