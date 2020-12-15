@@ -44,8 +44,8 @@ class Tab(QDialog):
         tabWidget = QTabWidget()
         tabWidget.setFont(QtGui.QFont("Sanserif", 10))
         tabWidget.addTab(TabBilgiEkle(), "Veri Girişleri")
-        tabWidget.addTab(TabIsletme(), "İşletme Ekle/Çıkar")
-        tabWidget.addTab(TabOgrenci(), "Öğrenci Ekle/Çıkar")
+        tabWidget.addTab(TabIsletme(), "İşletme Ekle")
+        tabWidget.addTab(TabOgrenci(), "Öğrenci Ekle")
         tabWidget.addTab(TabStaj(), "Staj İşlemleri")         
         tabWidget.addTab(TabRapor(), "Rapor Al")
         tabWidget.addTab(TabGrafik(), "Grafik Oluştur") 
@@ -285,54 +285,43 @@ class TabIsletme(QWidget):
         iban.setText("İBAN")
         ibanText=QLineEdit()
         
+        adres = QLabel()
+        adres.setText("Adres")
+        adresText=QLineEdit()
+        
+        
         egitimYiliIsletme = QLabel()
         egitimYiliIsletme.setText("Eğitim Yılı")
         egitimYiliIsletmeText=QLineEdit()
         
+        notu = QLabel()
+        notu.setText("Not")
+        notuText=QLineEdit()
+        
 
         
-        #VERİ TABANINA GİRİŞLER
+       #isletmeBilgileri VERİ TABANINA GİRİŞLER
         
-        def isletmeBilgiKayit():
-            
-           
-            
+        def isletmeBilgiKayit():                                  
             veritabani = 'stajIsletme.sqlite'
             dosya_var_mi = os.path.exists(veritabani)
             if dosya_var_mi:
                 veritabani = sqlite3.connect(veritabani)
-                imlec = veritabani.cursor()
-            
-          
-        
-                sorgu = "INSERT INTO isletmeBilgileri (isletmeAdi, temsilciAdSoyad, telefon,ePosta,vergiNo,sgkNo,adres,iban,bolumID,dalID) VALUES(?,?,?,?,?,?,?,?,?,?,?)"
-                ogrNoInt=int(ogrNoText.text()) 
-                imlec = veritabani.cursor() 
-            
-                            
-                imlec.execute("SELECT oB.bolumID FROM bolum as b, ogrenciBilgileri as oB WHERE b.bolumID=oB.bolumID AND b.bolumAdi=?",comboBolum.currentText())
-                comboBolumID = imlec.fetchone()
-                imlec = veritabani.cursor()
+                imlec = veritabani.cursor()                             
+                sorgu = "INSERT INTO isletmeBilgileri (isletmeAdi,temsilciAdSoyad,telefon,ePosta,vergiNo,sgkNo,adres,iban,tarihZaman,notu) VALUES(?,?,?,?,?,?,?,?,?,?)"
                 
-                imlec.execute("SELECT oB.dalID FROM dal as d, ogrenciBilgileri as oB WHERE d.dalID=oB.dalID AND d.dalAdi=?",comboDal.currentText())
-                comboDalID = imlec.fetchone()
-              
-                veri = [ogrNoInt, adText.text(), soyadText.text(), sinifSubeText.text(), telefonText.text(),egitimYiliText.text(),adSoyadText.text(), telefonVeliText.text(), adresText.text(), comboBolumID,comboDalID]
-            
-                imlec.execute(sorgu, veri)
-            
-                veritabani.commit()
-                veritabani.close()
-        
-              
-  
-        
-            #VERİ TABANINA GİRİŞLER BİTİMİ
+
+                veri = [isletmeAdiText.text(),temsilciAdSoyadText.text(),telefonIsletmeText.text(),ePostaIsletmeText.text(),vergiNoText.text(),sgkNoText.text(),adresText.text(),ibanText.text(),egitimYiliIsletmeText.text(),notuText.text()]          
+                imlec.execute(sorgu, veri)            
+            veritabani.commit()
+            veritabani.close()
+                              
+        #isletmeBilgileri VERİ TABANINA GİRİŞLER BİTİMİ
         
         
         ekleButonu=QPushButton('İşletme Ekle') 
         ekleButonu.setStyleSheet("background-color: #c71585; font-weight:bold")
-        
+        ekleButonu.clicked.connect(isletmeBilgiKayit)
         
         isletmeListesiButonu=QPushButton('İşletme Listesi Al')       
         isletmeListesiButonu.setGeometry(50, 50, 50, 50)
@@ -353,8 +342,12 @@ class TabIsletme(QWidget):
         vbox1.addWidget(sgkNoText)
         vbox1.addWidget(iban)
         vbox1.addWidget(ibanText)  
+        vbox1.addWidget(adres)
+        vbox1.addWidget(adresText) 
         vbox1.addWidget(egitimYiliIsletme)
-        vbox1.addWidget(egitimYiliIsletmeText)  
+        vbox1.addWidget(egitimYiliIsletmeText)
+        vbox1.addWidget(notu)
+        vbox1.addWidget(notuText) 
         
         
         vbox1.addWidget(ekleButonu)
@@ -540,7 +533,26 @@ class TabRapor(QWidget):
               
         isletmeAdi = QLabel()
         isletmeAdi.setText("İşletme Adı")
-        isletmeAdiText=QLineEdit()
+        
+        
+        
+         #VERİ TABANINDAN İŞLETME AD ALINMA 
+        veritabani = 'stajIsletme.sqlite'           
+        veritabani = sqlite3.connect(veritabani)
+        imlec = veritabani.cursor()
+        isletmeAdiCombo=QComboBox()        
+        imlec.execute("SELECT isletmeAdi FROM isletmeBilgileri")
+        isletmeListe = imlec.fetchall()
+        isletmeUzunlugu = len(isletmeListe)
+        
+        for i in range(0, isletmeUzunlugu):
+            #bolumListe = list(map(str, bolumListe))
+            isletme = isletmeListe[i]
+            isletmeAdiCombo.addItems(isletme)
+        veritabani.commit()
+        
+        
+      
         
         isletmeGetirButonu=QPushButton('İşletme Getir')
         isletmeGetirButonu.setStyleSheet("background-color: #c71585; font-weight:bold")
@@ -565,7 +577,7 @@ class TabRapor(QWidget):
             kart_boyutu = (3.54, 5.31)
             kanvas = canvas.Canvas(packet, pagesize=kart_boyutu)
             
-            isletmeKareKod =isletmeAdiText.text()
+            isletmeKareKod =isletmeAdiCombo.currentText()
             
             
     
@@ -614,7 +626,7 @@ class TabRapor(QWidget):
         
         vbox2 = QVBoxLayout()  
         vbox2.addWidget(isletmeAdi)
-        vbox2.addWidget(isletmeAdiText)
+        vbox2.addWidget(isletmeAdiCombo)
         vbox2.addWidget(isletmeGetirButonu)
         vbox2.addWidget(kareKodButonu)
         gBoxKareKod.setLayout(vbox2) 
@@ -755,7 +767,7 @@ class TabBilgiEkle(QWidget):
         alanIsletme.setText("Bölüm")
         alanIsletmeText=QLineEdit()
         
-        #VERİ TABANINA GİRİŞLER
+        #BÖLÜM VERİ TABANINA GİRİŞLER
         
         def bolumBilgiKayit():                                  
             veritabani = 'stajIsletme.sqlite'
@@ -769,7 +781,7 @@ class TabBilgiEkle(QWidget):
             veritabani.commit()
             veritabani.close()
                               
-        #VERİ TABANINA GİRİŞLER BİTİMİ
+        #BÖLÜM VERİ TABANINA GİRİŞLER BİTİMİ
         
         ekleBolumButonu=QPushButton('Bölüm Ekle')
         ekleBolumButonu.setStyleSheet("background-color: #b7ff55; font-weight:bold")
@@ -795,7 +807,7 @@ class TabBilgiEkle(QWidget):
             bolum = bolumListe[i]
             comboBolum.addItems(bolum)
         veritabani.commit()
-        #VERİ TABANINA GİRİŞLER
+        #DAL VERİ TABANINA GİRİŞLER
         
         def dalBilgiKayit():                                  
             veritabani = 'stajIsletme.sqlite'
@@ -803,26 +815,23 @@ class TabBilgiEkle(QWidget):
             if dosya_var_mi:
                 veritabani = sqlite3.connect(veritabani)
                 imlec = veritabani.cursor() 
-                
-               
-      
-                 
-                 
-                sorgu = "INSERT INTO dal (dalAdi,bolumID,subeSinif) VALUES(?,?,?)"
-                
-               
-              
-                
-                imlec.execute("SELECT b.bolumID FROM bolum as b where b.bolumAdi=?",list(comboBolum.currentText()))
-                bolumAdiID = imlec.fetchall()    
-                
+                veriAlma="SELECT b.bolumID FROM bolum as b where b.bolumAdi=?"
+                v=[comboBolum.currentText()]
+                imlec.execute(veriAlma, v)
+                bolumAdiID = imlec.fetchone()
+                bID=str(bolumAdiID)
+                b = bID.replace(",","").replace("(","").replace(")","").replace("'","")
+                print(b)
                 imlec = veritabani.cursor()
-                veri = [dalIsletmeText.text(),int(bolumAdiID),sinifSubeText.text()]          
-                imlec.execute(sorgu, veri)            
-                veritabani.commit()
-                veritabani.close()
+       
+            sorgu = "INSERT INTO dal (dalAdi,bolumID,subeSinif) VALUES(?,?,?)"
+            veri = [dalIsletmeText.text(),int(b),sinifSubeText.text()] 
+            imlec.execute(sorgu, veri)            
+            veritabani.commit()
+            veritabani.close()
+                          
                               
-        #VERİ TABANINA GİRİŞLER BİTİMİ
+        #DAL VERİ TABANINA GİRİŞLER BİTİMİ
         
         
         ekleDalButonu=QPushButton('Dal Ekle')
@@ -872,13 +881,40 @@ class TabBilgiEkle(QWidget):
             bolum = bolumListe[i]
             alanText.addItems(bolum)
         veritabani.commit()  
+        
+        
+        def ogretmenBilgiKayit():                                  
+            veritabani = 'stajIsletme.sqlite'
+            dosya_var_mi = os.path.exists(veritabani)
+            if dosya_var_mi:
+                veritabani = sqlite3.connect(veritabani)
+                imlec = veritabani.cursor() 
+                veriAlma="SELECT b.bolumID FROM bolum as b where b.bolumAdi=?"
+                v=[alanText.currentText()]
+                imlec.execute(veriAlma, v)
+                bolumAdiID = imlec.fetchone()
+                bID=str(bolumAdiID)
+                b = bID.replace(",","").replace("(","").replace(")","").replace("'","")
+                print(b)
+                imlec = veritabani.cursor()
        
+            sorgu = "INSERT INTO koordinatorOgretmen (ogrtAd,ogrtSoyad,bolumID) VALUES(?,?,?)"
+            veri = [adOrtText.text(),soyadOgrtText.text(),int(b)] 
+            imlec.execute(sorgu, veri)            
+            veritabani.commit()
+            veritabani.close()
+                          
+                              
+        #ÖĞRETMEN VERİ TABANINA GİRİŞLER BİTİMİ
+        
+     
+        
         alanOrt=QLabel("Alan")
 
         
         ekleOgrtButonu=QPushButton('Öğretmen Ekle') 
         ekleOgrtButonu.setStyleSheet("background-color: #528b8b; font-weight:bold")
-        
+        ekleOgrtButonu.clicked.connect(ogretmenBilgiKayit)
         vbox2 = QVBoxLayout()  
             
         vbox2.addWidget(adOrt)
@@ -946,7 +982,7 @@ sorguIsletme= """CREATE TABLE IF NOT EXISTS "isletmeBilgileri" (
 	"il"	INTEGER,
 	"iban"	TEXT,
 	"tarihZaman"	TEXT,
-	"not"	TEXT,
+	"notu"	TEXT,
 	CONSTRAINT "isletmeIlFK" FOREIGN KEY("il") REFERENCES "il"("ilID"),
 	CONSTRAINT "isletmeIDPK" PRIMARY KEY("isletmeID" AUTOINCREMENT)
 ) """
