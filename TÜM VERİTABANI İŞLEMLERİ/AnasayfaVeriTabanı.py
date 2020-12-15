@@ -721,6 +721,8 @@ class TabGrafik(QWidget):
         grafikOlusturButonu=QPushButton('Öğrenci Sayılarına Göre İşletme Grafiği Oluştur')
         grafikOlusturButonu.setStyleSheet("background-color: #6e8b3d; font-weight:bold")
         grafikOlusturButonu.setGeometry(50, 50, 50, 50)
+        grafikOlusturButonu.clicked.connect(bolumyilisletmegrafik)
+        
         
         
         vbox = QVBoxLayout()
