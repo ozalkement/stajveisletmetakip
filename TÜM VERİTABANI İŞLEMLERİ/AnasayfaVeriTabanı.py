@@ -45,7 +45,7 @@ class Tab(QDialog):
         tabWidget.setFont(QtGui.QFont("Sanserif", 10))
         tabWidget.addTab(TabBilgiEkle(), "Veri Girişleri")
         tabWidget.addTab(TabIsletme(), "İşletme Ekle")
-        tabWidget.addTab(TabOgrenci(), "Öğrenci Ekle")
+        tabWidget.addTab(TabOgrenci(), "Öğrenci Ekle/Çıkar")
         tabWidget.addTab(TabStaj(), "Staj İşlemleri")         
         tabWidget.addTab(TabRapor(), "Rapor Al")
         tabWidget.addTab(TabGrafik(), "Grafik Oluştur") 
@@ -149,15 +149,16 @@ class TabOgrenci(QWidget):
         
         
                 
-        vbox1 = QVBoxLayout()       
+        vbox1 = QVBoxLayout()
+        vbox1.addWidget(ogrNo)
+        vbox1.addWidget(ogrNoText) 
         vbox1.addWidget(ad)
         vbox1.addWidget(adText)
         vbox1.addWidget(soyad)
         vbox1.addWidget(soyadText)
         vbox1.addWidget(sinifSube)
         vbox1.addWidget(sinifSubeText)  
-        vbox1.addWidget(ogrNo)
-        vbox1.addWidget(ogrNoText)        
+               
         vbox1.addWidget(telefon)
         vbox1.addWidget(telefonText)
         vbox1.addWidget(bolum)
@@ -231,11 +232,84 @@ class TabOgrenci(QWidget):
   
         
             #VERİ TABANINA GİRİŞLER BİTİMİ
+            
+          #VERİ TABANI GÜNCELLEME BAŞLANGIÇ
+        def ogrenciBilgiGuncelle():
+            veritabani = 'stajIsletme.sqlite'
+            dosya_var_mi = os.path.exists(veritabani)
+            if dosya_var_mi:
+                veritabani = sqlite3.connect(veritabani)
+                imlec = veritabani.cursor()
+               #--------------------------------------------------
+                veriAlma="SELECT b.bolumID FROM bolum as b where b.bolumAdi=?"
+                v=[comboBolum.currentText()]
+                imlec.execute(veriAlma, v)
+                bolumAdiID = imlec.fetchone()
+                bID=str(bolumAdiID)
+                b = bID.replace(",","").replace("(","").replace(")","").replace("'","")
+                print(b)
+                imlec = veritabani.cursor()
+                #--------------------------------------------------
+                veriAlmaDal="SELECT d.dalID FROM dal as d where d.dalAdi=?"
+                vDal=[comboBolum.currentText()]
+                imlec.execute(veriAlmaDal, vDal)
+                dalAdiID = imlec.fetchone()
+                dID=str(dalAdiID)
+                d = bID.replace(",","").replace("(","").replace(")","").replace("'","")
+                print(b)
+                imlec = veritabani.cursor()
+                
+               
+                #--------------------------------------------------
+             
         
+            sorgu = "UPDATE ogrenciBilgileri set ogrAd=?, ogrSoyad=?, subeSinif=?, telefon=?,egitimYili=?,veliAdSoyad=?,veliTelefon=?,adres=?,bolumID=?,dalID=? where ogrNo=? "
+           
+            veri = [adText.text(),soyadText.text(),sinifSubeText.text(),telefonText.text(),comboYil.currentText(),adSoyadText.text(),telefonVeliText.text(),adresText.text(),int(b),int(d),ogrNoText.text()]          
+            imlec.execute(sorgu, veri)            
+            veritabani.commit()
+            veritabani.close()
+        
+           #VERİ TABANI GÜNCELLEME BİTİŞ
+        
+        
+        
+         #VERİ TABANI SİLME BAŞLANGIÇ
+        def ogrenciBilgiSilme():
+            veritabani = 'stajIsletme.sqlite'
+            dosya_var_mi = os.path.exists(veritabani)
+            if dosya_var_mi:
+                veritabani = sqlite3.connect(veritabani)
+                imlec = veritabani.cursor()
+               
+             
+        
+            sorgu = "Delete from ogrenciBilgileri where ogrNo=? "
+           
+            veri = [ogrNoText.text()]          
+            imlec.execute(sorgu, veri)            
+            veritabani.commit()
+            veritabani.close()
+        
+           #VERİ TABANI SİLME BİTİŞ
         
         kaydetButonu=QPushButton('Kaydet') 
         kaydetButonu.setStyleSheet("background-color: #528b8b; font-weight:bold")
         kaydetButonu.clicked.connect(ogrenciBilgiKayit)
+        
+        guncelleButonu=QPushButton('Güncelle') 
+        guncelleButonu.setStyleSheet("background-color: #91F96b; font-weight:bold")
+        guncelleButonu.clicked.connect(ogrenciBilgiGuncelle)
+        
+        silButonu=QPushButton('Sil') 
+        silButonu.setStyleSheet("background-color: #916b8b; font-weight:bold")
+        silButonu.clicked.connect(ogrenciBilgiSilme)
+        
+        
+        aciklama1 = QLabel()
+        aciklama1.setText("DİKKAT!!! Öğrenci bilgileri silme ve güncelleme")
+        aciklama2 = QLabel()
+        aciklama2.setText("öğrenci numarasına göre yapılmaktadır.")
         
         vbox2 = QVBoxLayout()  
         vbox2.addWidget(adSoyad)
@@ -245,7 +319,10 @@ class TabOgrenci(QWidget):
         vbox2.addWidget(adres)
         vbox2.addWidget(adresText)        
         vbox2.addWidget(kaydetButonu)
-        
+        vbox2.addWidget(aciklama1)
+        vbox2.addWidget(aciklama2)
+        vbox2.addWidget(guncelleButonu)
+        vbox2.addWidget(silButonu)
         gBoxVeli.setLayout(vbox2) 
         
         
@@ -506,23 +583,38 @@ class TabStaj(QWidget):
 
         ogrencilerText=QListWidget()
         
-        imlec.execute("SELECT ogrAd, ogrSoyad FROM ogrenciBilgileri")
-        dalListe = imlec.fetchall()
-        dalUzunlugu = len(dalListe)
+        #---------ÖĞRENCİ LİSTELEME---------
+        def ogrenciListele():
+            imlec = veritabani.cursor()
+            veriAlmaOgrenci="SELECT ogrAd, ogrSoyad FROM ogrenciBilgileri o , isletmeBilgileri i,bolum b, dal d, stajBilgileri s where o.bolumID=b.bolumID and o.dalID=d.dalID and d.bolumID=b.bolumID and i.isletmeID=s.isletmeID and isletmeAdi=? and d.subeSinif=? and bolumAdi=? and dalAdi=?"                   
+            vOgrenci=[comboIsletme.currentText(),sinifSubeCombo.currentText(),alanIsletmeText.currentText(),dalIsletmeText.currentText()]
+            imlec.execute(veriAlmaOgrenci, vOgrenci)
+            ogrenciAdSoyad = imlec.fetchall()
+            oAdSoyad=str(ogrenciAdSoyad) 
+            adSoyadOgr = oAdSoyad.replace(",","").replace("(","").replace(")","").replace("'","") 
+            print(adSoyadOgr)
+            imlec = veritabani.cursor()
+            veritabani.commit()
+            #listAlan=[]
+            #for x in adSoyadOgr:
+                #listAlan.append(x)
+                
+            #print(listAlan)
+            ogrencilerText.addItem(adSoyadOgr)
+
+            
+            
+                
+
+        #---------ÖĞRENCİ LİSTELEME---------
         
-        for i in range(0, dalUzunlugu):
-            #bolumListe = list(map(str, bolumListe))
-            dal = dalListe[i]
-            dalIsletmeText.addItems(dal)
-        veritabani.commit()
         
         
         
-        
-        ogrencilerText.insertItem(1, "Şermin AKSOY")
         
         listeleButonu=QPushButton('Listele') 
         listeleButonu.setStyleSheet("background-color: #528b8b; font-weight:bold")
+        listeleButonu.clicked.connect(ogrenciListele)
         
         vbox2 = QVBoxLayout()  
         vbox2.addWidget(ogrencilerText)
@@ -741,6 +833,7 @@ class TabGrafik(QWidget):
                     bolumler=imlec.fetchall()
                     for x in bolumler:
                         listAlan.append(x[0])
+                        #print(listAlan)
                     veritabani.commit()
                     veritabani.close()
         
