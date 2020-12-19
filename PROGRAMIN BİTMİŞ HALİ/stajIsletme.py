@@ -92,7 +92,7 @@ def veriTabaniOlustur():
             
     sorguStaj = """  CREATE TABLE IF NOT EXISTS "stajBilgileri" (
 	"stajID" INTEGER,
-	"egitimYili"	INTEGER,
+	"egitimYili" INTEGER,
 	"donem"	INTEGER,
 	"isletmeID"	INTEGER,
 	"bolumID"	INTEGER,
@@ -108,6 +108,7 @@ def veriTabaniOlustur():
             
     im.execute(sorguStaj)             
     vt.commit()
+    vt.close()
 if __name__ == '__main__':
    app = QApplication(sys.argv)
    veriTabaniOlustur()
