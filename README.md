@@ -7,9 +7,16 @@ Grup ismi:
 Grup üyeleri:
 
 Şermin AKSOY
+
 seyit büyüköztürk
+
 Mehmet Eyili
+
 Oğuz KAPAN
+
 Özal KEMENT
+
 ELIF TOK SIMSEK
+
 Ahmet Vedat TOKMAK
+
