@@ -83,56 +83,12 @@ class TabBilgiEkle(QWidget):
         
         bolumSil=QPushButton('Bölüm Sil')
         bolumSil.setStyleSheet("background-color: #777; font-weight:bold")
-         #-------------BÖLÜM VERİ TABANI SİLME BAŞLANGIÇ--------------
-        def bolumBilgiSilme():                                  
-            veritabani = 'stajIsletme.sqlite'
-            dosya_var_mi = os.path.exists(veritabani)
-            if dosya_var_mi:
-                veritabani = sqlite3.connect(veritabani)
-                imlec = veritabani.cursor() 
-                   
-                sorgu = "DELETE FROM bolum where bolumID=?"
-                veri = [bolumSirasiText.text()] 
-                imlec.execute(sorgu, veri)            
-                veritabani.commit()
-            veritabani.close()        
         
-        #-------------BÖLÜM VERİ TABANI SİLME BİTİŞ--------------
-        bolumSil.clicked.connect(bolumBilgiSilme)
-        bolumGuncelle=QPushButton('Bölüm Güncelle')
-        bolumGuncelle.setStyleSheet("background-color: #777; font-weight:bold")
-         #-------------BÖLÜM VERİ TABANI Güncelleme BAŞLANGIÇ--------------
-        def bolumBilgiGuncelleme():                                  
-            veritabani = 'stajIsletme.sqlite'
-            dosya_var_mi = os.path.exists(veritabani)
-            if dosya_var_mi:
-                veritabani = sqlite3.connect(veritabani)
-                imlec = veritabani.cursor() 
-                   
-                sorgu = "UPDATE bolum SET bolumAdi=? where bolumID=?"
-                veri = [alanIsletmeText.text(),bolumSirasiText.text()] 
-                imlec.execute(sorgu, veri)            
-                veritabani.commit()
-            veritabani.close()        
+        veriListesi = QTableWidget()
+        veriDalListesi = QTableWidget()
+        veriOgrtListesi = QTableWidget()
         
-        #-------------BÖLÜM VERİ TABANI Güncelleme BİTİŞ--------------
-        
-        
-        bolumGuncelle.clicked.connect(bolumBilgiGuncelleme)
-        
-        gBoxsilmeGuncellemeBolumVeri= QGroupBox()      
-        silmeGuncellemeBolumH= QHBoxLayout()
-        silmeGuncellemeBolumH.addWidget(bolumSirasi)
-        silmeGuncellemeBolumH.addWidget(bolumSirasiText)
-        gBoxsilmeGuncellemeBolumButon= QGroupBox()
-        silmeGuncellemeBolumH2= QHBoxLayout()
-        silmeGuncellemeBolumH2.addWidget(bolumSil)
-        silmeGuncellemeBolumH2.addWidget(bolumGuncelle)
-        
-        
-        
-        
-        #------------------BÖLÜM VERİ TABANINA GİRİŞLER----------------------------
+        #------------------BÖLÜM VERİ TABANINA GİRİŞLER BAŞLANGIÇ----------------------------
 
     
         def bolumBilgiKayit():                                  
@@ -146,25 +102,115 @@ class TabBilgiEkle(QWidget):
                 imlec.execute(sorgu, veri)            
             veritabani.commit()           
             veritabani.close()
+            yenile()
                               
-        #BÖLÜM VERİ TABANINA GİRİŞLER BİTİMİ
+        #------------------BÖLÜM VERİ TABANINA GİRİŞLER BİTİŞ----------------------------
         
         ekleBolumButonu=QPushButton('Bölüm Ekle')
         ekleBolumButonu.setStyleSheet("background-color: #b7ff55; font-weight:bold")
         ekleBolumButonu.clicked.connect(bolumBilgiKayit)
         
+         #-------------BÖLÜM VERİ TABANI SİLME BAŞLANGIÇ--------------
+        def bolumBilgiSilme(): 
+            veritabani = 'stajIsletme.sqlite'
+            dosya_var_mi = os.path.exists(veritabani)
+            if dosya_var_mi:
+                veritabani = sqlite3.connect(veritabani)
+                imlec = veritabani.cursor() 
+                tabdialog = Tab()
+               
+                cevap=QMessageBox.question(tabdialog,"Bölüm silme","Kayıdı silmek istediğinize emin misiniz?",\
+                                    QMessageBox.Yes | QMessageBox.No )
+                if cevap==QMessageBox.Yes:
+                    secili=veriListesi.selectedItems()
+                    silinecek=secili[0].text()
+                    try:
+                        imlec.execute("DELETE FROM bolum where bolumID='%s'" %(silinecek))    
+                        veritabani.commit()
+                        yenile()
+                        QMessageBox.setText("Kayıt silme başarıyla gerçekleşti.")
+                    except Exception as Hata:
+                       # QMessageBox.setText("Şöyle bir hata ile karşılaşıldı: " ,str(Hata))
+                       print(str(Hata))
+                else:
+                    QMessageBox.setText("Silme işlemi iptal edildi...")
+            yenile()
+        #-------------BÖLÜM VERİ TABANI SİLME BİTİŞ--------------
+        bolumSil.clicked.connect(bolumBilgiSilme)
+        bolumGuncelle=QPushButton('Bölüm Güncelle')
+        bolumGuncelle.setStyleSheet("background-color: #777; font-weight:bold")
+        
+        #-----------Bölüm alanlarını tablodan seçilen bilgi ile doldurma----------
+        def doldurBolum():
+            secili=veriListesi.selectedItems()
+            alanIsletmeText.setText(secili[0].text())
+        
+        #veriListesi.itemSelectionChanged.connect(doldurBolum)
+        #-----------Bölüm alanlarını tablodan seçilen bilgi ile doldurma----------
+        
+         #-------------BÖLÜM VERİ TABANI Güncelleme BAŞLANGIÇ--------------
+        bilgiVermeBar=QStatusBar()
+        def bolumBilgiGuncelleme():                                  
+            veritabani = 'stajIsletme.sqlite'
+            dosya_var_mi = os.path.exists(veritabani)
+            if dosya_var_mi:
+                veritabani = sqlite3.connect(veritabani)
+                imlec = veritabani.cursor() 
+                tabdialog = Tab()
+               
+                cevap=QMessageBox.question(tabdialog,"Bölüm güncelleme","Kayıdı güncellemek istediğinize emin misiniz?",\
+                                    QMessageBox.Yes | QMessageBox.No )
+                if cevap==QMessageBox.Yes:
+                    secili=veriListesi.selectedItems()
+                    guncel=secili[0].text()
+                    try:
+                        sorgu = "UPDATE bolum SET bolumAdi=? where bolumID=?"
+                        veri = [alanIsletmeText.text(), (guncel)] 
+                        imlec.execute(sorgu, veri)
+                       
+                        veritabani.commit()
+                        yenile()
+                        QMessageBox.setText("Güncelleme işlemi başarıyla gerçekleşti.")
+                    except Exception as Hata:
+                       bilgiVermeBar.showMessage("Şöyle bir hata ile karşılaşıldı: " ,str(Hata))
+                       print(str(Hata))
+                else:
+                    bilgiVermeBar.showMessage("Güncelleme işlemi iptal edildi...")
+            veritabani.close()        
+            yenile()
+        #-------------BÖLÜM VERİ TABANI Güncelleme BİTİŞ--------------
+        
+        
+        
+        bolumGuncelle.clicked.connect(bolumBilgiGuncelleme)
+        
+        gBoxsilmeGuncellemeBolumVeri= QGroupBox()      
+        silmeGuncellemeBolumH= QHBoxLayout()
+        silmeIslemiAciklamasi=QLabel()
+        silmeIslemiAciklamasi.setText("NOT!! Silmek ya da güncellemek istediğiniz kayıt için \n mutlaka bölüm sırasını tablodan seçmelisiniz.")
+        silmeGuncellemeBolumH.addWidget(silmeIslemiAciklamasi)
+        #silmeGuncellemeBolumH.addWidget(bolumSirasi)
+        #silmeGuncellemeBolumH.addWidget(bolumSirasiText)
+        gBoxsilmeGuncellemeBolumButon= QGroupBox()
+        silmeGuncellemeBolumH2= QHBoxLayout()
+        silmeGuncellemeBolumH2.addWidget(bolumSil)
+        silmeGuncellemeBolumH2.addWidget(bolumGuncelle)
+        
+        
+        
+        
+        
+        
         
         #------VERİ TABANI BOLUM TABLO GÖRÜNME BAŞLANGIÇ---------
         
-        veriListesi = QTableWidget()
-        veriDalListesi = QTableWidget()
-        veriOgrtListesi = QTableWidget()
+        
         def yenile():
             veritabani = 'stajIsletme.sqlite'  
             veritabani = sqlite3.connect(veritabani)
             imlec = veritabani.cursor()              
             veriListesi.setAlternatingRowColors(True)
-            veriListesi.setColumnCount(2)
+            veriListesi.setColumnCount(2)   
             veriListesi.horizontalHeader().setCascadingSectionResizes(False)
             veriListesi.horizontalHeader().setSortIndicatorShown(False)
             veriListesi.horizontalHeader().setStretchLastSection(True)
@@ -172,6 +218,7 @@ class TabBilgiEkle(QWidget):
             veriListesi.verticalHeader().setCascadingSectionResizes(False)
             veriListesi.verticalHeader().setStretchLastSection(False)
             veriListesi.setHorizontalHeaderLabels(("Bölüm Sırası", "Bölüm Adı"))
+            
             veriListesi.setMinimumSize(300,100)                    
             veri = imlec.execute("SELECT * FROM bolum")
             veri = veri.fetchall()
@@ -183,16 +230,16 @@ class TabBilgiEkle(QWidget):
                     veriListesi.setItem(satirSayisi,sutunSayisi,QTableWidgetItem(str(sutunVeri)))
             veritabani.commit()
             veriDalListesi.setAlternatingRowColors(True)
-            veriDalListesi.setColumnCount(2)
+            veriDalListesi.setColumnCount(3)
             veriDalListesi.horizontalHeader().setCascadingSectionResizes(False)
             veriDalListesi.horizontalHeader().setSortIndicatorShown(False)
             veriDalListesi.horizontalHeader().setStretchLastSection(True)
             veriDalListesi.verticalHeader().setVisible(False)
             veriDalListesi.verticalHeader().setCascadingSectionResizes(False)
             veriDalListesi.verticalHeader().setStretchLastSection(False)
-            veriDalListesi.setHorizontalHeaderLabels(("Dal Sırası", "Dal Adı"))
+            veriDalListesi.setHorizontalHeaderLabels(("Dal Sırası", "Dal Adı","Sınıf"))
             veriDalListesi.setMinimumSize(300,100)                    
-            veriDal = imlec.execute("SELECT dalID, dalAdi FROM dal")
+            veriDal = imlec.execute("SELECT dalID, dalAdi,subeSinif FROM dal")
             veriDal = veriDal.fetchall()
             veriDalListesi.setRowCount(0)
             for satirSayisiD, satirVerisiD in enumerate(veriDal):
@@ -219,8 +266,19 @@ class TabBilgiEkle(QWidget):
                 for sutunSayisiOgrt, sutunVeriOgrt in enumerate(satirVerisiOgrt):
                     print(sutunSayisiOgrt,sutunVeriOgrt)
                     veriOgrtListesi.setItem(satirSayisiOgrt,sutunSayisiOgrt,QTableWidgetItem(str(sutunVeriOgrt)))
-            veritabani.commit()    
-        yenileButonu=QPushButton('Tabloları Yenile')
+            veritabani.commit()
+            sinifSubeText.clear()
+            alanIsletmeText.clear()
+            sinifSubeText.clear()
+            dalIsletmeText.clear()
+            adOrtText.clear()
+            soyadOgrtText.clear()
+            
+            
+            
+            
+            
+        yenileButonu=QPushButton('Tüm Tabloları Yenile')
         yenileButonu.setStyleSheet("background-color: #ff0000; font-weight:bold")
         yenileButonu.clicked.connect(yenile)
                
@@ -255,30 +313,43 @@ class TabBilgiEkle(QWidget):
         dalSil=QPushButton('Dal Sil')
         dalSil.setStyleSheet("background-color: #777; font-weight:bold")
         #-------------DAL VERİ TABANI SİLME BAŞLANGIÇ--------------
-        def dalBilgiSilme():                                  
+        def dalBilgiSilme():                                                                               
             veritabani = 'stajIsletme.sqlite'
             dosya_var_mi = os.path.exists(veritabani)
             if dosya_var_mi:
                 veritabani = sqlite3.connect(veritabani)
                 imlec = veritabani.cursor() 
-                   
-                sorgu = "DELETE FROM dal where dalID=?"
-                veri = [dalSirasiText.text()] 
-                imlec.execute(sorgu, veri)            
-                veritabani.commit()
-            veritabani.close()        
-        
+                tabdialog = Tab()
+               
+                cevap=QMessageBox.question(tabdialog,"Dal silme","Kayıdı silmek istediğinize emin misiniz?",\
+                                    QMessageBox.Yes | QMessageBox.No )
+                if cevap==QMessageBox.Yes:
+                    secili=veriDalListesi.selectedItems()
+                    silinecek=secili[0].text()
+                    try:
+                        imlec.execute("DELETE FROM dal where dalID='%s'" %(silinecek))    
+                        veritabani.commit()
+                        yenile()
+                        QMessageBox.setText("Kayıt silme başarıyla gerçekleşti.")
+                    except Exception as Hata:
+                       #QMessageBox.setText("Şöyle bir hata ile karşılaşıldı: " ,str(Hata))
+                       print(str(Hata))
+                else:
+                    QMessageBox.setText("Silme işlemi iptal edildi...")
+            yenile()
         #-------------DAL VERİ TABANI SİLME BİTİŞ--------------
         dalSil.clicked.connect(dalBilgiSilme)
         dalGuncelle=QPushButton('Dal Güncelle')
         dalGuncelle.setStyleSheet("background-color: #777; font-weight:bold")
+        
          #-------------Dal VERİ TABANI Güncelleme BAŞLANGIÇ--------------
         def dalBilgiGuncelleme():                                  
+            
             veritabani = 'stajIsletme.sqlite'
             dosya_var_mi = os.path.exists(veritabani)
             if dosya_var_mi:
                 veritabani = sqlite3.connect(veritabani)
-                imlec = veritabani.cursor() 
+                imlec = veritabani.cursor()
                 veriAlma="SELECT b.bolumID FROM bolum as b where b.bolumAdi=?"
                 v=[comboBolum.currentText()]
                 imlec.execute(veriAlma, v)
@@ -286,27 +357,57 @@ class TabBilgiEkle(QWidget):
                 bID=str(bolumAdiID)
                 b = bID.replace(",","").replace("(","").replace(")","").replace("'","")
                 print(b)
-                imlec = veritabani.cursor() 
-                   
-            sorgu = "UPDATE dal SET dalAdi=?,bolumID=?,subeSinif=? where dalID=?"
-            veri = [dalIsletmeText.text(),int(b),sinifSubeText.text(),dalSirasiText.text()] 
-            imlec.execute(sorgu, veri)            
-            veritabani.commit()
-            veritabani.close()        
-        
+                imlec = veritabani.cursor()
+                tabdialog = Tab()
+               
+                cevap=QMessageBox.question(tabdialog,"Dal güncelleme","Kayıdı güncellemek istediğinize emin misiniz?",\
+                                    QMessageBox.Yes | QMessageBox.No )
+                if cevap==QMessageBox.Yes:
+                    
+                    try:
+                        secili=veriDalListesi.selectedItems()
+                        guncel=secili[0].text()
+                        sorgu = "UPDATE dal SET dalAdi=?,bolumID=?,subeSinif=? where dalID=?"
+                        veri = [dalIsletmeText.text(),int(b),sinifSubeText.text(),guncel] 
+                        imlec.execute(sorgu, veri)
+                       
+                        veritabani.commit()
+                        yenile()
+                        QMessageBox.setText("Güncelleme işlemi başarıyla gerçekleşti.")
+                    except Exception as Hata:
+                       bilgiVermeBar.showMessage("Şöyle bir hata ile karşılaşıldı: " ,str(Hata))
+                       print(str(Hata))
+                else:
+                    bilgiVermeBar.showMessage("Güncelleme işlemi iptal edildi...")
+            veritabani.close()   
+            yenile()
         #-------------Dal VERİ TABANI Güncelleme BİTİŞ--------------
         dalGuncelle.clicked.connect(dalBilgiGuncelleme)
         
+         #-----------Dal alanlarını tablodan seçilen bilgi ile doldurma----------
+        def doldurDal():
+            secili=veriDalListesi.selectedItems()
+            dalIsletmeText.setText(secili[0].text())
+           #comboBolum.setCurrentText()
+            sinifSubeText.setText(secili[1].text())
+            
+        
+        #veriDalListesi.itemSelectionChanged.connect(doldurDal)
+        #-----------Dal alanlarını tablodan seçilen bilgi ile doldurma----------
+        
         gBoxsilmeGuncellemeDalVeri= QGroupBox()
         silmeGuncellemeDalH= QHBoxLayout()
-        silmeGuncellemeDalH.addWidget(dalSirasi)
-        silmeGuncellemeDalH.addWidget(dalSirasiText)
+        silDalAciklamasi=QLabel()
+        silDalAciklamasi.setText("NOT!! Silmek ya da güncellemek istediğiniz kayıt için \n mutlaka dal sırasını tablodan seçmelisiniz.")
+        silmeGuncellemeDalH.addWidget(silDalAciklamasi)
+        #silmeGuncellemeDalH.addWidget(dalSirasi)
+        #silmeGuncellemeDalH.addWidget(dalSirasiText)
         gBoxsilmeGuncellemeDalButon= QGroupBox()
         silmeGuncellemeDalH2= QHBoxLayout()
         silmeGuncellemeDalH2.addWidget(dalSil)
         silmeGuncellemeDalH2.addWidget(dalGuncelle)
         
-        
+        #------------------DAL VERİ TABANINA GİRİŞLER BAŞLANGIÇ----------
         
         def dalBilgiKayit():                                  
             veritabani = 'stajIsletme.sqlite'
@@ -397,7 +498,7 @@ class TabBilgiEkle(QWidget):
             alanText.addItems(bolum)
         veritabani.commit()  
         
-        
+        #-------------ÖĞRETMEN VERİ TABANINA GİRİŞLER BAŞLANGIÇ--------------
         def ogretmenBilgiKayit():                                  
             veritabani = 'stajIsletme.sqlite'
             dosya_var_mi = os.path.exists(veritabani)
@@ -418,7 +519,7 @@ class TabBilgiEkle(QWidget):
             imlec.execute(sorgu, veri)            
             veritabani.commit()
             veritabani.close()
-                          
+            yenile()              
                               
         #-------------ÖĞRETMEN VERİ TABANINA GİRİŞLER BİTİMİ--------------
         
@@ -438,30 +539,43 @@ class TabBilgiEkle(QWidget):
         ogrtSil=QPushButton('Öğretmen Sil')
         ogrtSil.setStyleSheet("background-color: #777; font-weight:bold")
          #-------------ÖĞRETMEN VERİ TABANI SİLME BAŞLANGIÇ--------------
-        def ogretmenBilgiSilme():                                  
-            veritabani = 'stajIsletme.sqlite'
-            dosya_var_mi = os.path.exists(veritabani)
-            if dosya_var_mi:
+        def ogretmenBilgiSilme():
+             veritabani = 'stajIsletme.sqlite'
+             dosya_var_mi = os.path.exists(veritabani)
+             if dosya_var_mi:
                 veritabani = sqlite3.connect(veritabani)
                 imlec = veritabani.cursor() 
-                   
-                sorgu = "DELETE FROM koordinatorOgretmen where ogrtmenID=?"
-                veri = [ogrtSirasiText.text()] 
-                imlec.execute(sorgu, veri)            
-                veritabani.commit()
-            veritabani.close()        
+                tabdialog = Tab()
+               
+                cevap=QMessageBox.question(tabdialog,"Öğretmen silme","Kayıdı silmek istediğinize emin misiniz?",\
+                                    QMessageBox.Yes | QMessageBox.No )
+                if cevap==QMessageBox.Yes:
+                    secili=veriOgrtListesi.selectedItems()
+                    silinecek=secili[0].text()
+                    try:
+                        imlec.execute("DELETE FROM koordinatorOgretmen where ogrtmenID='%s'" %(silinecek))    
+                        veritabani.commit()
+                        yenile()
+                        QMessageBox.setText("Kayıt silme başarıyla gerçekleşti.")
+                    except Exception as Hata:
+                       #QMessageBox.setText("Şöyle bir hata ile karşılaşıldı: " ,str(Hata))
+                       print(str(Hata))
+                else:
+                    QMessageBox.setText("Silme işlemi iptal edildi...")
+             yenile()
+     
         
         #-------------ÖĞRETMEN VERİ TABANI SİLME BİTİŞ--------------
         ogrtSil.clicked.connect(ogretmenBilgiSilme)
         ogrtGuncelle=QPushButton('Öğretmen Güncelle')
         ogrtGuncelle.setStyleSheet("background-color: #777; font-weight:bold")
          #-------------ÖĞRETMEN VERİ TABANI Güncelleme BAŞLANGIÇ--------------
-        def ogrtBilgiGuncelleme():                                  
-            veritabani = 'stajIsletme.sqlite'
-            dosya_var_mi = os.path.exists(veritabani)
-            if dosya_var_mi:
+        def ogrtBilgiGuncelleme():
+             veritabani = 'stajIsletme.sqlite'
+             dosya_var_mi = os.path.exists(veritabani)
+             if dosya_var_mi:
                 veritabani = sqlite3.connect(veritabani)
-                imlec = veritabani.cursor() 
+                imlec = veritabani.cursor()
                 veriAlma="SELECT b.bolumID FROM bolum as b where b.bolumAdi=?"
                 v=[comboBolum.currentText()]
                 imlec.execute(veriAlma, v)
@@ -469,21 +583,42 @@ class TabBilgiEkle(QWidget):
                 bID=str(bolumAdiID)
                 b = bID.replace(",","").replace("(","").replace(")","").replace("'","")
                 print(b)
-                imlec = veritabani.cursor() 
-                   
-                sorgu = "UPDATE koordinatorOgretmen SET ogrtAd=?,ogrtSoyad=?,bolumID=? where ogrtmenID=?"
-                veri = [adOrtText.text(),soyadOgrtText.text(),int(b),ogrtSirasiText.text()] 
-                imlec.execute(sorgu, veri)            
-                veritabani.commit()
-            veritabani.close()        
+                imlec = veritabani.cursor()
+                tabdialog = Tab()
+               
+                cevap=QMessageBox.question(tabdialog,"Öğretmen Bilgi Güncelleme","Kayıdı güncellemek istediğinize emin misiniz?",\
+                                    QMessageBox.Yes | QMessageBox.No )
+                if cevap==QMessageBox.Yes:
+                    
+                    try:
+                        secili=veriOgrtListesi.selectedItems()
+                        guncel=secili[0].text()
+                        sorgu = "UPDATE koordinatorOgretmen SET ogrtAd=?,ogrtSoyad=?,bolumID=? where ogrtmenID=?"
+                        veri = [adOrtText.text(),soyadOgrtText.text(),int(b),guncel] 
+                        imlec.execute(sorgu, veri)
+                       
+                        veritabani.commit()
+                        yenile()
+                        QMessageBox.setText("Güncelleme işlemi başarıyla gerçekleşti.")
+                    except Exception as Hata:
+                       bilgiVermeBar.showMessage("Şöyle bir hata ile karşılaşıldı: " ,str(Hata))
+                       print(str(Hata))
+                else:
+                    bilgiVermeBar.showMessage("Güncelleme işlemi iptal edildi...")
+             veritabani.close()   
+             yenile()
+   
         
         #-------------ÖĞRETMEN VERİ TABANI Güncelleme BİTİŞ--------------
         ogrtGuncelle.clicked.connect(ogrtBilgiGuncelleme)
         
         gBoxsilmeGuncellemeOgrtVeri= QGroupBox()
         silmeGuncellemeOgrtH= QHBoxLayout()
-        silmeGuncellemeOgrtH.addWidget(ogrtSirasi)
-        silmeGuncellemeOgrtH.addWidget(ogrtSirasiText)
+        #silmeGuncellemeOgrtH.addWidget(ogrtSirasi)
+        #silmeGuncellemeOgrtH.addWidget(ogrtSirasiText)
+        silOgrtAciklamasi=QLabel()
+        silOgrtAciklamasi.setText("NOT!! Silmek ya da güncellemek istediğiniz kayıt için \n mutlaka öğretmen sırasını tablodan seçmelisiniz.")
+        silmeGuncellemeOgrtH.addWidget(silOgrtAciklamasi)
         gBoxsilmeGuncellemeOgrtButon= QGroupBox()
         silmeGuncellemeOgrtH2= QHBoxLayout()
         silmeGuncellemeOgrtH2.addWidget(ogrtSil)
@@ -505,7 +640,9 @@ class TabBilgiEkle(QWidget):
         vbox2.addWidget(gBoxsilmeGuncellemeOgrtButon)
         gBoxsilmeGuncellemeOgrtButon.setLayout(silmeGuncellemeOgrtH2)
         vbox2.addWidget(veriOgrtListesi)
-        vbox2.addWidget(yenileButonu)
+        #vbox2.addWidget(yenileButonu)
+        vbox2.addWidget(bilgiVermeBar)
+        
         gBoxOgretmen.setLayout(vbox2) 
         
         vbox2.addStretch()
@@ -881,6 +1018,7 @@ class TabIsletme(QWidget):
                 imlec.execute(sorgu, veri)            
             veritabani.commit()
             veritabani.close()
+            yenile()
                               
         #------------isletmeBilgileri VERİ TABANINA GİRİŞLER BİTİMİ---------------
                 
@@ -894,48 +1032,86 @@ class TabIsletme(QWidget):
         
         isletmeSil=QPushButton('İşletme Sil')
         isletmeSil.setStyleSheet("background-color: #777; font-weight:bold")
+        bilgiVermeBar=QStatusBar()
         #-------------İŞLETME VERİ TABANI SİLME BAŞLANGIÇ--------------
-        def isletmeBilgiSilme():                                  
+        def isletmeBilgiSilme(): 
             veritabani = 'stajIsletme.sqlite'
             dosya_var_mi = os.path.exists(veritabani)
             if dosya_var_mi:
                 veritabani = sqlite3.connect(veritabani)
                 imlec = veritabani.cursor() 
-                   
-                sorgu = "DELETE FROM isletmeBilgileri where isletmeID=?"
-                veri = [isletmeSirasiText.text()] 
-                imlec.execute(sorgu, veri)            
-                veritabani.commit()
-            veritabani.close()        
+                tabdialog = Tab()
+               
+                cevap=QMessageBox.question(tabdialog,"İşletme silme","Kayıdı silmek istediğinize emin misiniz?",\
+                                    QMessageBox.Yes | QMessageBox.No )
+                if cevap==QMessageBox.Yes:
+                    secili=veriIsletmeListesi.selectedItems()
+                    silinecek=secili[0].text()
+                    try:
+                        imlec.execute("DELETE FROM isletmeBilgileri where isletmeID='%s'" %(silinecek))    
+                        veritabani.commit()
+                        yenile()
+                        QMessageBox.setText("Kayıt silme başarıyla gerçekleşti.")
+                    except Exception as Hata:
+                       #QMessageBox.setText("Şöyle bir hata ile karşılaşıldı: " ,str(Hata))
+                       print(str(Hata))
+                else:
+                    QMessageBox.setText("Silme işlemi iptal edildi...")
+            yenile()
+     
         
         #-------------İŞLETME VERİ TABANI SİLME BİTİŞ--------------
         isletmeSil.clicked.connect(isletmeBilgiSilme)
         isletmeGuncelle=QPushButton('İşletme Güncelle')
         isletmeGuncelle.setStyleSheet("background-color: #777; font-weight:bold")
+        
          #-------------İŞLETME VERİ TABANI Güncelleme BAŞLANGIÇ--------------
-        def isletmeBilgiGuncelleme():                                  
-            veritabani = 'stajIsletme.sqlite'
-            dosya_var_mi = os.path.exists(veritabani)
-            if dosya_var_mi:
+        def isletmeBilgiGuncelleme(): 
+             veritabani = 'stajIsletme.sqlite'
+             dosya_var_mi = os.path.exists(veritabani)
+             if dosya_var_mi:
                 veritabani = sqlite3.connect(veritabani)
-                imlec = veritabani.cursor() 
-                                  
-                sorgu = "UPDATE isletmeBilgileri SET isletmeAdi=?,temsilciAdSoyad=?,telefon=?,\
+                imlec = veritabani.cursor()
+                
+                tabdialog = Tab()
+               
+                cevap=QMessageBox.question(tabdialog,"İşletme Bilgileri Güncelleme","Kayıdı güncellemek istediğinize emin misiniz?",\
+                                    QMessageBox.Yes | QMessageBox.No )
+                if cevap==QMessageBox.Yes:
+                        
+                    try:
+                        secili=veriIsletmeListesi.selectedItems()
+                        guncel=secili[0].text()                       
+                        sorgu = "UPDATE isletmeBilgileri SET isletmeAdi=?,temsilciAdSoyad=?,telefon=?,\
                 ePosta=?,vergiNo=?,sgkNo=?,adres=?,iban=?,tarihZaman=?,notu=? where isletmeID=?"
-                veri = [isletmeAdiText.text(),temsilciAdSoyadText.text(),telefonIsletmeText.text(),\
+                        veri = [isletmeAdiText.text(),temsilciAdSoyadText.text(),telefonIsletmeText.text(),\
                         ePostaIsletmeText.text(),vergiNoText.text(),sgkNoText.text(),adresText.text(),\
-                        ibanText.text(),egitimYiliIsletmeCombo.currentText(),notuText.text(),isletmeSirasiText.text()] 
-                imlec.execute(sorgu, veri)            
-                veritabani.commit()
-            veritabani.close()        
+                        ibanText.text(),egitimYiliIsletmeCombo.currentText(),notuText.text(),guncel] 
+                        imlec.execute(sorgu, veri)
+                        QMessageBox.setText("Güncelleme işlemi başarıyla gerçekleşti.")
+                        veritabani.commit()
+                        yenile()
+                        
+                    except Exception as Hata:
+                       #bilgiVermeBar.showMessage("Şöyle bir hata ile karşılaşıldı: " ,str(Hata))
+                       print(str(Hata))
+                else:
+                    bilgiVermeBar.showMessage("Güncelleme işlemi iptal edildi...")
+             veritabani.close()   
+             yenile()
+
+   
         
         #-------------İŞLETME VERİ TABANI Güncelleme BİTİŞ--------------
         isletmeGuncelle.clicked.connect(isletmeBilgiGuncelleme)
         
         gBoxsilmeGuncellemeIsletmeVeri= QGroupBox()
         silmeGuncellemeIsletmeH= QHBoxLayout()
-        silmeGuncellemeIsletmeH.addWidget(isletmeSirasi)
-        silmeGuncellemeIsletmeH.addWidget(isletmeSirasiText)
+        #silmeGuncellemeIsletmeH.addWidget(isletmeSirasi)
+        #silmeGuncellemeIsletmeH.addWidget(isletmeSirasiText)
+        silIsletmeAciklamasi=QLabel()
+        silIsletmeAciklamasi.setText("NOT!! Silmek ya da güncellemek istediğiniz kayıt için \n mutlaka işletme sırasını tablodan seçmelisiniz.")
+        silmeGuncellemeIsletmeH.addWidget(silIsletmeAciklamasi)
         gBoxsilmeGuncellemeIsletmeButon= QGroupBox()
         silmeGuncellemeIsletmeH2= QHBoxLayout()
         silmeGuncellemeIsletmeH2.addWidget(isletmeSil)
@@ -954,16 +1130,16 @@ class TabIsletme(QWidget):
             veritabani = sqlite3.connect(veritabani)
             imlec = veritabani.cursor()              
             veriIsletmeListesi.setAlternatingRowColors(True)
-            veriIsletmeListesi.setColumnCount(4)
+            veriIsletmeListesi.setColumnCount(5)
             veriIsletmeListesi.horizontalHeader().setCascadingSectionResizes(False)
             veriIsletmeListesi.horizontalHeader().setSortIndicatorShown(False)
             veriIsletmeListesi.horizontalHeader().setStretchLastSection(True)
             veriIsletmeListesi.verticalHeader().setVisible(False)
             veriIsletmeListesi.verticalHeader().setCascadingSectionResizes(False)
             veriIsletmeListesi.verticalHeader().setStretchLastSection(False)
-            veriIsletmeListesi.setHorizontalHeaderLabels(("İşletme Sırası", "İşletme Adı","Temsilci Ad Soyad","Telefon"))
+            veriIsletmeListesi.setHorizontalHeaderLabels(("İşletme Sırası", "İşletme Adı","Temsilci Ad Soyad","Telefon","Adres"))
             veriIsletmeListesi.setMinimumSize(400,300)                    
-            veriIsletme = imlec.execute("SELECT isletmeID,isletmeAdi,temsilciAdSoyad,telefon FROM isletmeBilgileri")
+            veriIsletme = imlec.execute("SELECT isletmeID,isletmeAdi,temsilciAdSoyad,telefon,adres FROM isletmeBilgileri")
             veriIsletme = veriIsletme.fetchall()
             veriIsletmeListesi.setRowCount(0)
             for satirSayisi, satirVerisi in enumerate(veriIsletme):
